@@ -1,0 +1,147 @@
+$red:    #DC2626;
+$orange: #F59E0B;
+$text:   #0D1B2A;
+$muted:  #6B7F93;
+
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+  max-width: 360px;
+}
+
+.toast {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: white;
+  border: 1px solid #E2EBF4;
+  border-left: 4px solid $orange;
+  border-radius: 12px;
+  padding: 14px 14px 14px 12px;
+  min-width: 300px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
+  pointer-events: all;
+  overflow: hidden;
+  animation: toast-slide-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &.critical {
+    border-left-color: $red;
+  }
+
+  &.warning {
+    border-left-color: $orange;
+  }
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Barre de progression en bas du toast
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: $orange;
+  border-radius: 0 0 12px 12px;
+  animation: progress-bar 6s linear forwards;
+
+  &.critical {
+    background: $red;
+    animation-duration: 10s;
+  }
+}
+
+@keyframes progress-bar {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+.toast-icon {
+  font-size: 18px;
+  padding-top: 1px;
+  flex-shrink: 0;
+}
+
+.toast-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.toast-severity {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: white;
+  background: $orange;
+  padding: 2px 7px;
+  border-radius: 4px;
+
+  .toast.critical & {
+    background: $red;
+  }
+}
+
+.toast-role {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: #1E3A8A;
+  background: #EEF4FF;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.toast-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.toast-msg {
+  font-size: 11px;
+  color: $muted;
+  line-height: 1.5;
+}
+
+.toast-close {
+  background: none;
+  border: none;
+  color: #CBD5E1;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: color 0.15s;
+  line-height: 1;
+
+  &:hover {
+    color: $red;
+  }
+}

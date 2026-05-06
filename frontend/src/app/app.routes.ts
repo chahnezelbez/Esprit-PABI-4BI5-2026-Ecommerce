@@ -95,4 +95,10 @@ export const routes: Routes = [
     canActivate: [roleGuard(['financier'])],
     data: { reportKey: 'financier' }
   },
+   {
+    path: 'report-builder',
+    loadComponent: () =>
+      import('./components/report-builder/report-builder.component').then(m => m.ReportBuilderComponent),
+    canActivate: [roleGuard(['general_manager', 'financier'])], // Accessible à la DG et Finance
+  },
 ];

@@ -1,0 +1,270 @@
+// ── Variables ───────────────────────────────────────────────────
+$sougui:   #1E3A8A;
+$gold:     #D4A017;
+$red:      #DC2626;
+$orange:   #F59E0B;
+$green:    #22C55E;
+$border:   #E2EBF4;
+$text:     #0D1B2A;
+$muted:    #6B7F93;
+$bg-hover: #F8FAFB;
+
+// ── Wrapper ─────────────────────────────────────────────────────
+.bell-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+// ── Bouton cloche ───────────────────────────────────────────────
+.bell-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  &.has-critical {
+    color: #FCA5A5;
+    border-color: rgba($red, 0.5);
+    animation: bell-shake 0.6s ease;
+  }
+}
+
+@keyframes bell-shake {
+  0%, 100% { transform: rotate(0deg); }
+  20%       { transform: rotate(-15deg); }
+  40%       { transform: rotate(15deg); }
+  60%       { transform: rotate(-10deg); }
+  80%       { transform: rotate(10deg); }
+}
+
+// ── Badge ───────────────────────────────────────────────────────
+.bell-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  background: $orange;
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 2px solid $sougui;
+
+  &.critical {
+    background: $red;
+    animation: pulse-badge 1.5s infinite;
+  }
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.15); }
+}
+
+// ── Dropdown ────────────────────────────────────────────────────
+.alert-dropdown {
+  position: absolute;
+  bottom: calc(100% + 10px); // ← au-dessus (car dans sidebar en bas)
+  left: 0;
+  width: 340px;
+  background: white;
+  border: 1px solid $border;
+  border-radius: 14px;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0,0,0,0.05);
+  z-index: 2000;
+  overflow: hidden;
+  animation: drop-in 0.2s ease;
+}
+
+@keyframes drop-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+// ── Header ──────────────────────────────────────────────────────
+.drop-header {
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.drop-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.drop-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text;
+}
+
+.drop-count {
+  font-size: 11px;
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.mark-all-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: $muted;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  transition: color 0.15s;
+
+  &:hover { color: $sougui; }
+}
+
+// ── Vide ────────────────────────────────────────────────────────
+.drop-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  font-size: 13px;
+  color: $muted;
+
+  .empty-icon { font-size: 28px; }
+}
+
+// ── Liste alertes ───────────────────────────────────────────────
+.alert-list {
+  max-height: 340px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb { background: $border; border-radius: 2px; }
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px 11px 0;
+  cursor: pointer;
+  position: relative;
+  border-bottom: 1px solid #F8FAFC;
+  transition: background 0.15s;
+
+  &:hover { background: $bg-hover; }
+
+  &.unread { background: #FAFCFF; }
+
+  &.critical .alert-severity-bar { background: $red; }
+  &.warning  .alert-severity-bar { background: $orange; }
+}
+
+.alert-severity-bar {
+  width: 3px;
+  align-self: stretch;
+  border-radius: 0 2px 2px 0;
+  flex-shrink: 0;
+}
+
+.alert-icon {
+  font-size: 14px;
+  padding-top: 2px;
+  flex-shrink: 0;
+}
+
+.alert-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.alert-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.alert-role {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: $sougui;
+  background: #EEF4FF;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.alert-time {
+  font-size: 10px;
+  color: #9CA3AF;
+}
+
+.alert-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.alert-msg {
+  font-size: 11px;
+  color: $muted;
+  line-height: 1.45;
+}
+
+.dismiss-btn {
+  background: none;
+  border: none;
+  color: #CBD5E1;
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+
+  &:hover { color: $red; }
+}
+
+// ── Footer ──────────────────────────────────────────────────────
+.drop-footer {
+  padding: 10px 16px;
+  border-top: 1px solid #F1F5F9;
+  text-align: center;
+}
+
+.clear-btn {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: $muted;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s;
+
+  &:hover { color: $red; }
+}

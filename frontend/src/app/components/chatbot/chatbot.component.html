@@ -1,0 +1,130 @@
+<div class="chatbot-wrapper">
+
+  <!-- ── Bouton flottant ── -->
+  <button
+    class="chat-fab"
+    (click)="toggle()"
+    [class.open]="isOpen"
+    [attr.aria-label]="isOpen ? 'Fermer le chatbot' : 'Ouvrir le chatbot IA'"
+  >
+    <svg *ngIf="!isOpen" width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"
+            stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="9"  cy="11" r="1" fill="white"/>
+      <circle cx="12" cy="11" r="1" fill="white"/>
+      <circle cx="15" cy="11" r="1" fill="white"/>
+    </svg>
+    <svg *ngIf="isOpen" width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <line x1="4" y1="4" x2="18" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      <line x1="18" y1="4" x2="4" y2="18" stroke="white" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+
+    <!-- Badge IA -->
+    <span class="fab-badge">IA</span>
+  </button>
+
+  <!-- ── Fenêtre de chat ── -->
+  <div class="chat-window" [class.visible]="isOpen">
+
+    <!-- Header -->
+    <div class="chat-header">
+      <div class="header-left">
+        <div class="ai-avatar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2a7 7 0 0 1 7 7c0 2.4-1.2 4.5-3 5.7V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.3A7 7 0 0 1 12 2z"
+                  stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M9 21h6M10 18v3M14 18v3" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <p class="header-title">Assistant IA</p>
+          <p class="header-role">{{ roleLabel }}</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span class="status-dot"></span>
+        <button class="icon-btn" (click)="clearChat()" title="Nouvelle conversation">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"
+                  stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M3 3v5h5" stroke="currentColor" stroke-width="1.8"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Zone messages -->
+    <div class="chat-messages">
+
+      <!-- Messages -->
+      <div
+        *ngFor="let msg of messages"
+        class="msg-row"
+        [class.user-row]="msg.role === 'user'"
+        [class.ai-row]="msg.role === 'assistant'"
+      >
+        <!-- Avatar IA -->
+        <div class="msg-avatar" *ngIf="msg.role === 'assistant'">AI</div>
+
+        <!-- Bulle -->
+        <div class="msg-bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'assistant'">
+          <!-- Loading animé -->
+          <div class="typing-dots" *ngIf="msg.loading">
+            <span></span><span></span><span></span>
+          </div>
+          <!-- Contenu -->
+          <div *ngIf="!msg.loading"
+               class="msg-content"
+               [innerHTML]="formatMessage(msg.content)">
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="suggestions" *ngIf="showSuggestions && messages.length <= 1">
+        <p class="suggestions-label">Questions suggérées</p>
+        <button
+          *ngFor="let s of suggestions"
+          class="suggestion-btn"
+          (click)="sendMessage(s)"
+        >{{ s }}</button>
+      </div>
+
+      <!-- Erreur -->
+      <div class="error-msg" *ngIf="errorMsg">
+        ⚠ {{ errorMsg }}
+        <button (click)="errorMsg = ''">✕</button>
+      </div>
+
+      <div #messagesEnd></div>
+    </div>
+
+    <!-- Input -->
+    <div class="chat-input-area">
+      <div class="input-wrapper">
+        <textarea
+          [(ngModel)]="userInput"
+(keydown.enter)="handleEnterKey($event)"
+          [disabled]="isLoading"
+          placeholder="Posez votre question..."
+          rows="1"
+          class="chat-textarea"
+        ></textarea>
+        <button
+          class="send-btn"
+          (click)="sendMessage()"
+          [disabled]="!userInput.trim() || isLoading"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+        </button>
+      </div>
+      <p class="input-hint">Entrée pour envoyer · Shift+Entrée pour nouvelle ligne</p>
+    </div>
+
+  </div>
+</div>

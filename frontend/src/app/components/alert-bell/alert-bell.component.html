@@ -1,0 +1,90 @@
+<div class="bell-wrapper">
+
+  <!-- ── Bouton cloche ── -->
+  <button
+    class="bell-btn"
+    (click)="toggle(); $event.stopPropagation()"
+    [class.has-critical]="store.criticalCount() > 0"
+    [title]="store.unreadCount() + ' alertes non lues'"
+  >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+      <path
+        d="M10 2a6 6 0 0 1 6 6v3l1.5 2.5H2.5L4 11V8a6 6 0 0 1 6-6Z"
+        stroke="currentColor" stroke-width="1.5" fill="none"
+      />
+      <path d="M8 16.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="1.5"/>
+    </svg>
+
+    <span
+      class="bell-badge"
+      *ngIf="store.unreadCount() > 0"
+      [class.critical]="store.criticalCount() > 0"
+    >
+      {{ store.unreadCount() > 9 ? '9+' : store.unreadCount() }}
+    </span>
+  </button>
+
+  <!-- ── Dropdown ── -->
+  <div class="alert-dropdown" *ngIf="open" (click)="$event.stopPropagation()">
+
+    <div class="drop-header">
+      <div class="drop-title-row">
+        <span class="drop-title">Alertes KPI</span>
+        <span class="drop-count" *ngIf="store.unreadCount() > 0">
+          {{ store.unreadCount() }} non lues
+        </span>
+      </div>
+      <button class="mark-all-btn" (click)="store.markAllRead()"
+              *ngIf="store.unreadCount() > 0">
+        Tout marquer lu
+      </button>
+    </div>
+
+    <!-- Vide -->
+    <div class="drop-empty" *ngIf="store.alerts().length === 0">
+      <span class="empty-icon">✅</span>
+      <span>Tous les KPIs sont dans les normes</span>
+    </div>
+
+    <!-- Liste des alertes -->
+    <div class="alert-list" *ngIf="store.alerts().length > 0">
+      <div
+        *ngFor="let a of store.alerts(); trackBy: trackById"
+        class="alert-item"
+        [class.unread]="!a.read"
+        [class.critical]="a.severity === 'critical'"
+        [class.warning]="a.severity === 'warning'"
+        (click)="store.markRead(a.id)"
+      >
+        <div class="alert-severity-bar"></div>
+
+        <div class="alert-icon">
+          {{ a.severity === 'critical' ? '🔴' : '🟡' }}
+        </div>
+
+        <div class="alert-body">
+          <div class="alert-meta">
+            <span class="alert-role">{{ a.role | uppercase }}</span>
+            <span class="alert-time">{{ a.timestamp | date:'HH:mm' }}</span>
+          </div>
+          <p class="alert-title">{{ a.title }}</p>
+          <p class="alert-msg">{{ a.message }}</p>
+        </div>
+
+        <button
+          class="dismiss-btn"
+          title="Ignorer"
+          (click)="$event.stopPropagation(); store.dismiss(a.id)"
+        >✕</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="drop-footer" *ngIf="store.alerts().length > 0">
+      <button class="clear-btn" (click)="store.clearAll()">
+        Effacer toutes les alertes
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,28 @@
+<div class="toast-container">
+  <div
+    *ngFor="let t of visibleToasts; trackBy: trackById"
+    class="toast"
+    [class.critical]="t.severity === 'critical'"
+    [class.warning]="t.severity === 'warning'"
+  >
+    <!-- Barre de progression auto-dismiss -->
+    <div class="toast-progress" [class.critical]="t.severity === 'critical'"></div>
+
+    <div class="toast-icon">
+      {{ t.severity === 'critical' ? '🔴' : '🟡' }}
+    </div>
+
+    <div class="toast-body">
+      <div class="toast-header">
+        <span class="toast-severity">
+          {{ t.severity === 'critical' ? 'CRITIQUE' : 'ATTENTION' }}
+        </span>
+        <span class="toast-role">{{ t.role | uppercase }}</span>
+      </div>
+      <p class="toast-title">{{ t.title }}</p>
+      <p class="toast-msg">{{ t.message }}</p>
+    </div>
+
+    <button class="toast-close" (click)="dismiss(t.id)" title="Fermer">✕</button>
+  </div>
+</div>

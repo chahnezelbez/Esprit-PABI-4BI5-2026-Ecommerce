@@ -1,8 +1,8 @@
-# Esprit-PIDEV-4BI5-2026-Ecommerce
+# Esprit-PABI-4BI5-2026-Ecommerce
 Developed at Esprit School of Engineering – Tunisia | Academic Year 2025–2026 | Talend, Python, Power BI, n8n 
 # Sougui Ecommerce — Business Intelligence Dashboard
  
-> **Esprit School of Engineering · Classe 4BI5 · PIDEV 2026**
+> **Esprit School of Engineering · Classe 4BI5 · PABI 2026**
 > Branche active : `bi-innovateurs`
  
 ---

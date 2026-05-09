@@ -1,6 +1,8 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "dist/sougui-front",
+  "devCommand": "ng serve",
+  "installCommand": "npm install",
   "rewrites": [
     {
       "source": "/(.*)",

@@ -12,6 +12,7 @@ import {
 } from '../../models/api.models';
 
 type ActiveTask = 'classification' | 'regression' | 'clustering';
+type PaymentMethodOption = { label: string; value: string };
 
 // ─── Résultats métier ─────────────────────────────────────────
 const CLASSIF_LABELS: Record<number, { label: string; desc: string; icon: string }> = {
@@ -66,8 +67,10 @@ export class PurchaseComponent {
   anneeList = [2023, 2024, 2025, 2026];
   semaineList = Array.from({ length: 53 }, (_, i) => i + 1);
   
-  // Liste des méthodes de paiement - Utiliser des valeurs qui fonctionnent avec le backend
-  methodesPaiement = ['CB', 'VIREMENT', 'CHEQUE', 'ESPECES', 'TRAITE'];
+  // Valeurs envoyées au backend (encodeur_methode) + labels affichés UI
+  methodesPaiement: PaymentMethodOption[] = [
+    { label: 'Inconnu', value: 'Inconnu' },
+  ];
 
   readonly fournisseurs = [
     'ASCOM','STEG','SONEDE','ORANGE','Tunisie Telecom',
@@ -103,7 +106,7 @@ export class PurchaseComponent {
     Est_weekend: 0,
     fournisseur: 'STEG',
     categorie: 'SERVICE',
-    methode: 'CB',  // Valeur par défaut modifiée
+    methode: 'Inconnu',
     Taux_TVA: 0.19,
   };
 
@@ -149,6 +152,12 @@ export class PurchaseComponent {
 
   clearError(fieldName: string) {
     delete this.errors[fieldName];
+  }
+
+  private normalizePaymentMethod(raw: string): string {
+    // L'encodeur backend actuel n'accepte qu'une seule classe: "Inconnu".
+    // On force cette valeur pour éviter les erreurs 400.
+    return 'Inconnu';
   }
 
   clearErrorMsg() {
@@ -216,7 +225,14 @@ export class PurchaseComponent {
 
   submitRegression(): void {
     if (!this.validateRegression()) return;
-    
+
+    // Garantit une valeur reconnue par l'encodeur backend.
+    this.regrForm.methode = this.normalizePaymentMethod(this.regrForm.methode);
+    if (!this.methodesPaiement.some(m => m.value === this.regrForm.methode)) {
+      this.errorMsg.set('Méthode de paiement non reconnue. Choisissez une valeur de la liste.');
+      return;
+    }
+
     console.log('Données envoyées pour régression:', this.regrForm);
     
     this.loading.set(true);

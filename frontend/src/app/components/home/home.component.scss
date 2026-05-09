@@ -6,9 +6,9 @@
 }
 
 // ── Variables ─────────────────────────────
-$sougui:      #0F4C8A;
-$sougui-deep: #0A3366;
-$sougui-mid:  #1A6DBF;
+$sougui:      #0b276f;
+$sougui-deep: #050c4e;
+$sougui-mid:  #051461;
 $sougui-pale: #EBF4FB;
 $sougui-light:#D6E8F7;
 $gold:        #C4922A;
@@ -31,12 +31,29 @@ $muted:       #6B7F93;
   min-height: calc(100vh - 64px); // 64px = hauteur sidebar header
 }
 
+/* ── LEFT HERO AVEC IMAGE VERTICALE ── */
+
 .hero-left {
-  background: $sougui-deep;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
+
+  /* IMAGE verticale */
+  background: url("https://i.pinimg.com/736x/dc/cd/03/dccd03034491c1271d43a79309711eb2.jpg") center center / cover no-repeat;
+
+  /* optionnel : légère teinte Sougui */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(5, 12, 78, 0.65),
+      rgba(11, 39, 111, 0.75)
+    );
+    z-index: 1;
+  }
 }
 
 .hero-pattern {

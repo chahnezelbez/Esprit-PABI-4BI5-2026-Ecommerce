@@ -1,0 +1,123 @@
+<!-- events-popup.component.html -->
+<div class="events-wow">
+  
+  <!-- Hero Section Époustouflante -->
+  <div class="hero-wow">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-pulse"></span>
+        Événements 2026-2027
+      </div>
+      <h1 class="hero-title">
+        Explorez les<br>
+        <span class="gradient-text">Opportunités Globales</span>
+      </h1>
+      <p class="hero-subtitle">
+        Des salons prestigieux pour propulser Sougui.tn sur la scène internationale
+      </p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">{{ filteredEvents.length }}</div>
+          <div class="hero-stat-label">Événements</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">{{ highCountValue }}</div>
+          <div class="hero-stat-label">Recommandés</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">12+</div>
+          <div class="hero-stat-label">Pays</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres Premium -->
+  <div class="filters-premium">
+    <div class="filters-container">
+      <button *ngFor="let f of filters"
+        class="filter-premium"
+        [class.active]="selectedFilter === f.key"
+        (click)="setFilter(f.key)">
+        <span class="filter-icon">{{ f.icon }}</span>
+        <span class="filter-label">{{ f.label }}</span>
+        <span class="filter-count" *ngIf="getFilterCount(f.key) > 0">{{ getFilterCount(f.key) }}</span>
+      </button>
+    </div>
+    <div class="filter-decoration"></div>
+  </div>
+
+  <!-- Timeline des événements -->
+  <div class="timeline-wow">
+    <div class="timeline-line"></div>
+    
+    <div *ngFor="let e of filteredEvents; let i = index" 
+         class="timeline-item"
+         [class.highlight]="e.relevance === 'haute'"
+         [style.animation-delay]="i * 0.1 + 's'">
+      
+      <div class="timeline-marker">
+        <div class="marker-inner" [style.background]="getCategoryColor(e.category)">
+          <span class="marker-icon">📍</span>
+        </div>
+        <div class="marker-date">
+          <span class="marker-day">{{ getEventDay(e.date) }}</span>
+          <span class="marker-month">{{ getEventMonth(e.date) }}</span>
+        </div>
+      </div>
+
+      <div class="timeline-card">
+        <div class="card-glow"></div>
+        <div class="card-header-wow">
+          <div class="card-category" [style.background]="getCategoryColor(e.category)">
+            {{ e.category }}
+          </div>
+          <div class="card-badge-wow" *ngIf="e.relevance === 'haute'">
+            <span>🔥</span> Recommandé
+          </div>
+        </div>
+        
+        <h3 class="card-title-wow">{{ e.name }}</h3>
+        <p class="card-desc-wow">{{ e.description }}</p>
+        
+        <div class="card-meta-wow">
+          <div class="meta-wow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <circle cx="12" cy="9" r="2.5" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+            <span>{{ e.lieu }}</span>
+          </div>
+          <div class="meta-wow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <span>{{ e.duration }}</span>
+          </div>
+        </div>
+        
+        <div class="card-footer-wow">
+          <button class="btn-wow" (click)="openUrl(e.url)">
+            <span>Découvrir l'événement</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H9M17 7V15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <div class="card-id">#{{ (i + 1).toString().padStart(2, '0') }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-wow" *ngIf="filteredEvents.length === 0">
+    <div class="empty-animation">
+      <span>🔮</span>
+    </div>
+    <h3>Aucun événement trouvé</h3>
+    <p>Explorez d'autres catégories</p>
+  </div>
+</div>

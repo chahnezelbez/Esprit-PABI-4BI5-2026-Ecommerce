@@ -1,28 +1,96 @@
+
+/* ─────────────────────────────
+   SOUGUI REPORT VIEW PREMIUM
+   ───────────────────────────── */
+
+/* host */
 :host {
   display: block;
   height: 100vh;
   overflow: hidden;
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(201,150,58,0.08), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(30,58,138,0.08), transparent 50%),
+    linear-gradient(135deg, #ffffff, #f7f5f0);
 }
 
+/* wrapper */
 .report-wrapper {
   width: 100%;
   height: 100vh;
-  padding: 0;
-  margin: 0;
-  overflow: hidden;
+  padding: 18px;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
 }
 
+/* cadre décoratif artisanal */
+.report-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 20px;
+
+  border: 1px solid rgba(201,150,58,0.25);
+  pointer-events: none;
+}
+
+/* iframe container */
 .report-frame {
   width: 100%;
-  height: 100vh;
+  height: 100%;
+
   border: none;
-  display: block;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 25px 70px rgba(11, 39, 111, 0.18),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+
+  transition: all 0.3s ease;
 }
 
+/* hover léger premium */
+.report-frame:hover {
+  transform: scale(1.002);
+  box-shadow:
+    0 30px 90px rgba(11, 39, 111, 0.22);
+}
+
+/* error box premium */
 .error-box {
-  padding: 16px;
-  background: #fff3f3;
-  border: 1px solid #f5c6c6;
-  border-radius: 8px;
-  color: #c0392b;
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+
+  padding: 14px 16px;
+
+  background: rgba(255, 245, 245, 0.95);
+  border: 1px solid #f2b8b8;
+  border-left: 4px solid #c0392b;
+
+  border-radius: 10px;
+
+  color: #8b1e1e;
+  font-size: 13px;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+
+  z-index: 10;
+}
+
+/* loading state (optionnel futur) */
+.report-loading {
+  position: absolute;
+  color: #0b276f;
+  font-size: 13px;
+  font-weight: 500;
 }

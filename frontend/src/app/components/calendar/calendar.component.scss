@@ -1,0 +1,148 @@
+/* ─────────────────────────────────────
+   SOUGUI ARTISAN CALENDAR (PREMIUM)
+   ───────────────────────────────────── */
+
+/* 🌟 Background global (papier + texture douce) */
+.sougui-calendar-wrapper {
+  padding: 28px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(circle at 20% 10%, rgba(201, 150, 58, 0.08), transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(30, 58, 138, 0.06), transparent 45%),
+    linear-gradient(135deg, #ffffff, #f7f5f0);
+}
+
+/* 🧠 Header artisanal */
+.calendar-header {
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.calendar-header h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0b276f;
+  margin: 0;
+  letter-spacing: 0.5px;
+  font-family: "Cormorant Garamond", serif;
+}
+
+.calendar-header p {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* 💎 Card style céramique artisanale */
+.calendar-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+
+  border-radius: 18px;
+  padding: 18px;
+
+  border: 1px solid rgba(201, 150, 58, 0.25);
+
+  box-shadow:
+    0 20px 45px rgba(11, 39, 111, 0.12),
+    inset 0 1px 0 rgba(255,255,255,0.7);
+
+  position: relative;
+  overflow: hidden;
+
+  transition: all 0.3s ease;
+}
+
+/* effet “artisan glow border” */
+.calendar-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  padding: 1px;
+
+  background: linear-gradient(
+    135deg,
+    rgba(201, 150, 58, 0.3),
+    rgba(30, 58, 138, 0.15)
+  );
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+.calendar-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 28px 70px rgba(11, 39, 111, 0.18);
+}
+
+/* 📅 FullCalendar base */
+.fc {
+  font-family: "Inter", sans-serif;
+}
+
+/* 🔵 Toolbar artisan */
+.fc .fc-toolbar-title {
+  color: #0b276f;
+  font-weight: 700;
+  font-family: "Cormorant Garamond", serif;
+}
+
+/* boutons calendar */
+.fc .fc-button {
+  background: #0b276f !important;
+  border: none !important;
+  border-radius: 8px !important;
+
+  padding: 6px 12px !important;
+
+  font-size: 12px;
+  transition: 0.25s ease;
+}
+
+.fc .fc-button:hover {
+  background: #c4922a !important;
+  color: #1f1f1f !important;
+}
+
+/* 📆 headers jours */
+.fc-col-header-cell {
+  background: linear-gradient(135deg, #0b276f, #051461);
+  color: white;
+  padding: 8px;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+}
+
+/* 🌿 hover day subtil */
+.fc-daygrid-day:hover {
+  background: rgba(196, 146, 42, 0.08);
+  cursor: pointer;
+}
+
+/* 🎯 Events artisan style */
+.fc-event {
+  background: linear-gradient(135deg, #0b276f, #1e3a8a) !important;
+  border: none !important;
+
+  border-radius: 6px !important;
+  padding: 3px 6px;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  box-shadow: 0 6px 16px rgba(11, 39, 111, 0.25);
+  transition: all 0.2s ease;
+}
+
+/* hover event doré */
+.fc-event:hover {
+  background: #c4922a !important;
+  color: #1f1f1f !important;
+  transform: scale(1.03);
+}

@@ -1,0 +1,13 @@
+<svg width="380" height="110" viewBox="0 0 380 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="souguiBlue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1E3A8A" />
+      <stop offset="100%" stop-color="#14295F" />
+    </linearGradient>
+  </defs>
+  <rect x="6" y="8" width="94" height="94" rx="22" fill="url(#souguiBlue)" />
+  <path d="M34 64.5C36.8 74.8 45.3 81 56 81C67.3 81 76.2 73.8 78.8 63.2" stroke="#D4A017" stroke-width="7" stroke-linecap="round" />
+  <circle cx="45.5" cy="46.5" r="6.5" fill="#F5E9DA" />
+  <circle cx="66.5" cy="46.5" r="6.5" fill="#F5E9DA" />
+  <text x="120" y="66" font-family="Segoe UI, Arial, sans-serif" font-size="50" font-weight="700" fill="#FFFFFF">sougui</text>
+</svg>

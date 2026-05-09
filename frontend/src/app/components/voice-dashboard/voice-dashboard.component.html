@@ -1,0 +1,92 @@
+<!-- components/voice-dashboard/voice-dashboard.component.html -->
+
+<!-- Bouton flottant -->
+<button class="voice-float-btn" (click)="toggleDashboard()" [class.active]="isOpen">
+  <span class="voice-icon">🎤</span>
+  <span class="voice-status" *ngIf="isListening" class="pulse"></span>
+</button>
+
+<!-- Dashboard vocal -->
+<div class="voice-dashboard" [class.open]="isOpen" [class.minimized]="isMinimized">
+  
+  <!-- En-tête -->
+  <div class="voice-header">
+    <div class="voice-title">
+      <span class="title-icon">🎙️</span>
+      <span>Assistant Vocal Sougui</span>
+    </div>
+    <div class="voice-controls">
+      <button class="minimize-btn" (click)="toggleMinimize()">
+        {{ isMinimized ? '□' : '−' }}
+      </button>
+      <button class="close-btn" (click)="toggleDashboard()">✕</button>
+    </div>
+  </div>
+  
+  <!-- Corps (caché si minimisé) -->
+  <div class="voice-body" *ngIf="!isMinimized">
+    
+    <!-- Support non disponible -->
+    <div class="unsupported-warning" *ngIf="!isSupported">
+      ⚠️ Votre navigateur ne supporte pas la reconnaissance vocale.
+      <br>
+      Utilisez Chrome, Edge ou Safari.
+    </div>
+    
+    <!-- Zone d'écoute -->
+    <div class="listening-zone" [class.listening]="isListening">
+      <button class="mic-btn" (click)="isListening ? stopListening() : startListening()" [class.active]="isListening">
+        <span class="mic-icon">{{ isListening ? '🔴' : '🎤' }}</span>
+        <span class="mic-text">{{ isListening ? 'Écoute...' : 'Parlez' }}</span>
+      </button>
+      
+      <div class="transcript" *ngIf="currentTranscript">
+        <span class="transcript-label">Vous avez dit :</span>
+        <span class="transcript-text">"{{ currentTranscript }}"</span>
+      </div>
+    </div>
+    
+    <!-- Historique des conversations -->
+    <div class="conversation-history">
+      <div class="history-header">
+        <span>📝 Historique</span>
+        <button class="clear-history" (click)="clearHistory()">Effacer</button>
+      </div>
+      
+      <div class="history-list">
+        <div *ngFor="let msg of history" class="history-message" [class.user]="msg.isUser" [class.bot]="!msg.isUser">
+          <div class="message-avatar">
+            {{ msg.isUser ? '👤' : '🤖' }}
+          </div>
+          <div class="message-content">
+            <div class="message-text">{{ msg.text }}</div>
+            <div class="message-time">{{ msg.timestamp | date:'HH:mm:ss' }}</div>
+          </div>
+        </div>
+        
+        <div class="empty-history" *ngIf="history.length === 0">
+          <span>🎙️</span>
+          <p>Cliquez sur le microphone et parlez</p>
+          <small>Essayez : "Ventes B2C" ou "Rapport financier"</small>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Commandes suggestions -->
+    <div class="command-suggestions">
+      <p class="suggestions-title">💡 Commandes suggérées</p>
+      <div class="suggestions-list">
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_commercial')">📈 Ventes B2C</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_b2b')">🤝 Ventes B2B</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_purchase')">🛒 Achats</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_marketing')">🎯 Marketing</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_financier')">💰 Finances</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_gm')">🏢 Direction</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_report_commercial')">📊 Rapport B2C</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_calendar')">📅 Calendrier</button>
+        <button class="suggestion-chip" (click)="handleVoiceAction('show_events')">🎉 Événements</button>
+      </div>
+    </div>
+    
+  </div>
+</div>

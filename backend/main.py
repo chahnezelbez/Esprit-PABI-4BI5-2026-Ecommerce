@@ -11,7 +11,10 @@ import pandas as pd
 from pathlib import Path
 import logging
 import json
+import os
+from urllib import request, parse
 from typing import List, Dict, Any
+import unicodedata
 
 # ❌ SUPPRIMER CETTE LIGNE SI ELLE EXISTE:
 # from httpx import Response
@@ -332,6 +335,14 @@ class ForecastInputFin(BaseModel):
     periods: int = Field(default=12, ge=1, le=36, description="Nombre de périodes à prévoir")
 
 # ------------------------------------------------------------------
+# ========== POWER BI KPI BACKEND (SERVICE PRINCIPAL) ==========
+# ------------------------------------------------------------------
+
+class PowerBiKpiResponse(BaseModel):
+    kpis: Dict[str, float]
+    source: str
+
+# ------------------------------------------------------------------
 # Chargement des modèles et ressources
 # ------------------------------------------------------------------
 models = {}
@@ -544,7 +555,56 @@ def encode_field(value: str, encoder, field_name: str):
     try:
         return int(encoder.transform([value])[0])
     except Exception:
-        raise HTTPException(status_code=400, detail=f"Valeur inconnue pour {field_name}: {value}")
+        # Fallback intelligent pour absorber les variations de libellés frontend.
+        normalized_value = _normalize_token(value)
+        classes = [str(c) for c in getattr(encoder, "classes_", [])]
+
+        if field_name == "methode" and classes:
+            aliases = {
+                "CB": ["CB", "CARTE", "CARTEBANCAIRE", "CREDITCARD", "CARTEB"],
+                "VIREMENT": ["VIREMENT", "VIR", "TRANSFER", "BANKTRANSFER"],
+                "CHEQUE": ["CHEQUE", "CHQ", "CHECK"],
+                "ESPECES": ["ESPECES", "ESPECE", "CASH", "PAYINPERSON", "ENMAINPROPRE"],
+                "TRAITE": ["TRAITE", "LETTREDECHANGE", "LCR"],
+            }
+
+            # Construire un index "normalisé -> classe réelle encodeur"
+            normalized_class_map: Dict[str, str] = {}
+            for cls in classes:
+                normalized_class_map[_normalize_token(cls)] = cls
+
+            # 1) match direct normalisé
+            if normalized_value in normalized_class_map:
+                return int(encoder.transform([normalized_class_map[normalized_value]])[0])
+
+            # 2) match via aliases
+            for canonical, alias_values in aliases.items():
+                if normalized_value in [_normalize_token(a) for a in alias_values]:
+                    # Trouver la classe encodeur la plus proche de ce canonical
+                    candidate_tokens = [_normalize_token(canonical)] + [_normalize_token(a) for a in alias_values]
+                    for token in candidate_tokens:
+                        if token in normalized_class_map:
+                            return int(encoder.transform([normalized_class_map[token]])[0])
+
+            # 3) match partiel (contains) pour valeurs composées
+            for cls in classes:
+                if normalized_value and normalized_value in _normalize_token(cls):
+                    return int(encoder.transform([cls])[0])
+
+        allowed = ", ".join(classes) if classes else "inconnues"
+        raise HTTPException(
+            status_code=400,
+            detail=f"Valeur inconnue pour {field_name}: {value}. Valeurs attendues: {allowed}"
+        )
+
+
+def _normalize_token(text: str) -> str:
+    raw = "" if text is None else str(text)
+    no_accents = ''.join(
+        ch for ch in unicodedata.normalize('NFKD', raw)
+        if not unicodedata.combining(ch)
+    )
+    return ''.join(ch for ch in no_accents.upper() if ch.isalnum())
 
 # ------------------------------------------------------------------
 # PREPARATEURS DE FEATURES - PURCHASE
@@ -968,6 +1028,103 @@ async def forecast_fin(input_data: ForecastInputFin):
 # ------------------------------------------------------------------
 # ENDPOINTS GÉNÉRAUX
 # ------------------------------------------------------------------
+@app.get("/powerbi/kpis", response_model=PowerBiKpiResponse)
+async def get_powerbi_kpis():
+    tenant_id = os.getenv("POWERBI_TENANT_ID")
+    client_id = os.getenv("POWERBI_CLIENT_ID")
+    client_secret = os.getenv("POWERBI_CLIENT_SECRET")
+    workspace_id = os.getenv("POWERBI_WORKSPACE_ID", "9d0fbedc-8ecd-4523-9524-62ae4d76f8ff")
+    dataset_id = os.getenv("POWERBI_DATASET_ID", "60ca01ef-3cca-4aa5-88fa-8fc0c5ed253e")
+
+    if not tenant_id or not client_id or not client_secret:
+        raise HTTPException(
+            status_code=503,
+            detail="Variables POWERBI_TENANT_ID/POWERBI_CLIENT_ID/POWERBI_CLIENT_SECRET manquantes.",
+        )
+
+    metrics = [
+        "[CA Total]",
+        "[Marge Nette]",
+        "[Objectif Global]",
+        "[Stock Critique]",
+        "[Délai Livraison]",
+        "[Commandes B2B]",
+        "[CA B2B]",
+        "[Taux Conversion]",
+        "[Panier Moyen]",
+        "[Taux Engagement]",
+        "[Leads Générés]",
+    ]
+    measures = ",\n  ".join([f"\"{m}\", {m}" for m in metrics])
+    dax_query = f"EVALUATE ROW(\n  {measures}\n)"
+
+    try:
+        token = _get_powerbi_access_token(tenant_id, client_id, client_secret)
+        data = _execute_powerbi_query(token, workspace_id, dataset_id, dax_query)
+        return {"kpis": data, "source": "powerbi_executequeries_backend"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Erreur /powerbi/kpis")
+        raise HTTPException(status_code=502, detail=f"Erreur Power BI backend: {e}")
+
+
+def _get_powerbi_access_token(tenant_id: str, client_id: str, client_secret: str) -> str:
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+    form = parse.urlencode({
+        "grant_type": "client_credentials",
+        "client_id": client_id,
+        "client_secret": client_secret,
+        "scope": "https://analysis.windows.net/powerbi/api/.default",
+    }).encode("utf-8")
+
+    req = request.Request(token_url, data=form, method="POST")
+    req.add_header("Content-Type", "application/x-www-form-urlencoded")
+
+    try:
+        with request.urlopen(req, timeout=30) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+            token = payload.get("access_token")
+            if not token:
+                raise HTTPException(status_code=502, detail="Token Power BI introuvable dans la réponse Azure AD.")
+            return token
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Echec authentification Azure AD: {e}")
+
+
+def _execute_powerbi_query(token: str, workspace_id: str, dataset_id: str, dax_query: str) -> Dict[str, float]:
+    url = f"https://api.powerbi.com/v1.0/myorg/groups/{workspace_id}/datasets/{dataset_id}/executeQueries"
+    body = json.dumps({
+        "queries": [{"query": dax_query}],
+        "serializerSettings": {"includeNulls": True},
+    }).encode("utf-8")
+
+    req = request.Request(url, data=body, method="POST")
+    req.add_header("Authorization", f"Bearer {token}")
+    req.add_header("Content-Type", "application/json")
+
+    try:
+        with request.urlopen(req, timeout=30) as resp:
+            payload = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Echec ExecuteQueries: {e}")
+
+    row = (((payload.get("results") or [{}])[0].get("tables") or [{}])[0].get("rows") or [{}])[0]
+    if not isinstance(row, dict) or not row:
+        return {}
+
+    normalized: Dict[str, float] = {}
+    for key, value in row.items():
+        if value is None:
+            continue
+        match = key[key.rfind('['):] if '[' in key and key.endswith(']') else key
+        try:
+            normalized[match] = float(value)
+        except (TypeError, ValueError):
+            continue
+    return normalized
+
+
 @app.get("/")
 def home():
     return {

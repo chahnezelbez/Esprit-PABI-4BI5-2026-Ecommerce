@@ -2,6 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+
 import {
   B2bFeaturesRequest,
   B2bClassificationResponse,
@@ -12,6 +13,27 @@ import {
 } from '../../models/api.models';
 
 type B2bTask = 'classification' | 'classification-risks' | 'clustering' | 'forecast' | 'regression' | 'anomaly';
+
+const TASK_FEATURE_REQUIREMENTS: Record<B2bTask, number | null> = {
+  classification: 10,
+  'classification-risks': 27,
+  clustering: null,
+  forecast: null,
+  regression: null,
+  anomaly: null,
+};
+
+const TASK_DEFAULT_FEATURES: Record<B2bTask, number[]> = {
+  classification: [0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58],
+  'classification-risks': [
+    0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ],
+  clustering: [0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58],
+  forecast: [0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58],
+  regression: [0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58],
+  anomaly: [0.15, 1, 0.4, 0.07, 0.9, 12, 220, 18, 0.02, 0.58],
+};
 
 @Component({
   selector: 'app-b2b',
@@ -31,7 +53,7 @@ export class B2bComponent {
   regressResult = signal<B2bRegressionResponse | null>(null);
   anomalyResult = signal<B2bAnomalyResponse | null>(null);
   
-  featuresValue = '0.15,1,0.4,0.07,0.9,12,220,18,0.02,0.58';
+  featuresValue = TASK_DEFAULT_FEATURES.classification.join(',');
   forecastPeriods = 12;
 
   availableTasks: B2bTask[] = [
@@ -43,9 +65,16 @@ export class B2bComponent {
     'anomaly',
   ];
 
-  constructor(private api: ApiService) {}
+  constructor(
+    private api: ApiService,
+  ) {}
 
   setTask(task: B2bTask): void {
+    const required = TASK_FEATURE_REQUIREMENTS[task];
+    const current = this.features;
+    if (required !== null && current.length !== required) {
+      this.featuresValue = TASK_DEFAULT_FEATURES[task].join(',');
+    }
     this.selectedTask.set(task);
     this.clearResults();
     this.errorMsg.set(null);
@@ -66,18 +95,11 @@ export class B2bComponent {
       .filter((v) => !isNaN(v));
   }
 
-  getTaskLabel(task: B2bTask): string {
-    const labels: Record<B2bTask, string> = {
-      classification: 'Classification',
-      'classification-risks': 'Risques',
-      clustering: 'Clustering',
-      forecast: 'Prévision',
-      regression: 'Régression',
-      anomaly: 'Anomalie',
-    };
-    return labels[task];
+  get requiredFeatureCount(): number | null {
+    return TASK_FEATURE_REQUIREMENTS[this.selectedTask()];
   }
 
+  // ⭐⭐⭐ ICÔNES DES ONGLETS (inchangées) ⭐⭐⭐
   getTaskIcon(task: B2bTask): string {
     const icons: Record<B2bTask, string> = {
       classification: '📊',
@@ -88,6 +110,24 @@ export class B2bComponent {
       anomaly: '🔍',
     };
     return icons[task];
+  }
+
+  // ⭐⭐⭐ TITRES SIMPLIFIÉS DES ONGLETS (MODIFIÉS) ⭐⭐⭐
+  getTaskLabel(task: B2bTask): string {
+    const labels: Record<B2bTask, string> = {
+      classification: 'Profil client',
+      'classification-risks': 'Évaluation risque',
+      clustering: 'Segmentation',
+      forecast: 'Prévision CA',
+      regression: 'Estimation',
+      anomaly: 'Détection',
+    };
+    return labels[task];
+  }
+
+  // ⭐⭐⭐ DESCRIPTION POUR LE HERO (AJOUTÉE) ⭐⭐⭐
+  getHeroDescription(): string {
+    return 'Analyse clients, catégorisation, détection et prévision pour les clients B2B';
   }
 
   hasResult(): boolean {
@@ -102,11 +142,12 @@ export class B2bComponent {
 
   submit(): void {
     if (this.features.length === 0) {
-      this.errorMsg.set('Veuillez entrer au moins une feature');
+      this.errorMsg.set('Veuillez entrer au moins une donnée client');
       return;
     }
-    if (this.selectedTask() === 'classification-risks' && this.features.length !== 27) {
-      this.errorMsg.set(`La classification des risques nécessite 27 features (${this.features.length} fournies)`);
+    const requiredCount = this.requiredFeatureCount;
+    if (requiredCount !== null && this.features.length !== requiredCount) {
+      this.errorMsg.set(`${this.getTaskLabel(this.selectedTask())} nécessite ${requiredCount} données client (${this.features.length} fournies)`);
       return;
     }
 
@@ -147,8 +188,6 @@ export class B2bComponent {
         });
         break;
       case 'forecast':
-        // Attention: forecast utilise B2bFeaturesRequest? Vérifiez votre API.
-        // Si l'API attend { periods }, adapter. Ici on utilise les features.
         this.api.b2bForecast(payload).subscribe({
           next: (res) => { this.forecastResult.set(res); this.loading.set(false); },
           error: handleError,

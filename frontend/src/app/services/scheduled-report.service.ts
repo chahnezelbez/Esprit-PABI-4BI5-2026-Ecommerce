@@ -15,15 +15,29 @@ export class ScheduledReportService {
   }
 
   addReport(report: CustomReport) {
-    this.reports.push(report);
+    const existingIndex = this.reports.findIndex(r => r.id === report.id);
+    if (existingIndex >= 0) {
+      this.cancelSchedule(report.id);
+      this.reports[existingIndex] = report;
+    } else {
+      this.reports.push(report);
+    }
     this.saveReports();
     this.scheduleReport(report);
+  }
+
+  updateReport(report: CustomReport) {
+    this.addReport(report);
   }
 
   removeReport(reportId: string) {
     this.reports = this.reports.filter(r => r.id !== reportId);
     this.saveReports();
     this.cancelSchedule(reportId);
+  }
+
+  getReports(): CustomReport[] {
+    return [...this.reports];
   }
 
   private scheduleReport(report: CustomReport) {

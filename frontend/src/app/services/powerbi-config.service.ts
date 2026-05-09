@@ -10,11 +10,12 @@ export class PowerbiConfigService {
 
   private readonly BASE_URL = 'https://app.powerbi.com/reportEmbed';
   private readonly REPORT_ID = '84068065-f618-44eb-b89f-4676655167c8';
+  private readonly GROUP_ID = '9d0fbedc-8ecd-4523-9524-62ae4d76f8ff';
   private readonly CTID = '604f1a96-cbe8-43f8-abbf-f8eaf5d85730';
   private readonly PARAMS = '&autoAuth=true&filterPaneEnabled=false&navContentPaneEnabled=false';
 
   private buildUrl(pageName?: string): string {
-    let url = `${this.BASE_URL}?reportId=${this.REPORT_ID}&ctid=${this.CTID}${this.PARAMS}`;
+    let url = `${this.BASE_URL}?reportId=${this.REPORT_ID}&groupId=${this.GROUP_ID}&ctid=${this.CTID}${this.PARAMS}`;
     if (pageName) {
       url += `&pageName=${pageName}`;
     }

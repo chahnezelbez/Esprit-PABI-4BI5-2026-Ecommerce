@@ -5,8 +5,8 @@
     <div class="hero-content">
       <!-- Titre principal à gauche -->
       <div class="hero-title">
-        <h1>Décideur<span>Achat</span></h1>
-        <div class="hero-script">Analyse fiscale & intelligence fournisseur</div>
+        <h1>{{ 'Décideur' }}<span>{{ 'Achat' }}</span></h1>
+        <div class="hero-script">{{ 'Analyse fiscale & intelligence fournisseur'  }}</div>
       </div>
 
       <!-- Logo + ornements à droite -->
@@ -30,19 +30,19 @@
               [class.active]="activeTask() === 'classification'" 
               (click)="setTask('classification')">
         <span class="tab-icon">🔍</span>
-        <span>Analyse fiscale</span>
+        <span>{{ 'Analyse fiscale'  }}</span>
       </button>
       <button class="tab-btn" 
               [class.active]="activeTask() === 'regression'" 
               (click)="setTask('regression')">
         <span class="tab-icon">💰</span>
-        <span>Estimation TTC</span>
+        <span>{{ 'Estimation TTC' }}</span>
       </button>
       <button class="tab-btn" 
               [class.active]="activeTask() === 'clustering'" 
               (click)="setTask('clustering')">
         <span class="tab-icon">🏷️</span>
-        <span>Typologie fournisseur</span>
+        <span>{{ 'Typologie fournisseur'  }}</span>
       </button>
       <div class="tab-indicator" [style.transform]="'translateX(' + getTabOffset() + ')'"></div>
     </div>
@@ -55,34 +55,34 @@
     <ng-container *ngIf="activeTask() === 'classification'">
       <div class="luxury-card">
         <div class="card-header">
-          <div class="header-badge">🔖 Conseil fiscal</div>
-          <h2>Régime de TVA applicable</h2>
-          <p>Déterminez si votre achat relève du taux normal ou réduit</p>
+          <div class="header-badge">🔖 {{ 'Conseil fiscal'  }}</div>
+          <h2>{{ 'Régime de TVA applicable' }}</h2>
+          <p>{{ 'Déterminez si votre achat relève du taux normal ou réduit' }}</p>
         </div>
 
         <div class="fields-grid">
           <!-- Bloc 1 : Financier -->
           <div class="field-block">
-            <div class="block-title"><span class="num">01</span> Montants clés</div>
+            <div class="block-title"><span class="num">01</span> {{ 'Montants clés'  }}</div>
             <div class="field-row">
               <div class="field" [class.error]="errors['Montant_HT']">
-                <label>Montant HT (TND)</label>
+                <label>{{ 'Montant HT (TND)'  }}</label>
                 <div class="input-wrapper">
                   <input type="number" [(ngModel)]="classifForm.Montant_HT" 
                          (blur)="validateField('Montant_HT', classifForm.Montant_HT, {required:true, min:0})" 
-                         step="50" placeholder="ex: 1500">
+                         step="50" [placeholder]="'ex: 1500' ">
                   <span class="suffix">TND</span>
                 </div>
                 <small class="error-msg" *ngIf="errors['Montant_HT']">{{ errors['Montant_HT'] }}</small>
               </div>
               <div class="field" [class.error]="errors['Taux_TVA']">
-                <label>Taux de TVA</label>
+                <label>{{ 'Taux de TVA'  }}</label>
                 <div class="input-wrapper select">
                   <select [(ngModel)]="classifForm.Taux_TVA" (change)="clearError('Taux_TVA')">
-                    <option [ngValue]="0">0% – Exonéré</option>
-                    <option [ngValue]="0.07">7% – Réduit</option>
-                    <option [ngValue]="0.13">13% – Intermédiaire</option>
-                    <option [ngValue]="0.19">19% – Normal</option>
+                    <option [ngValue]="0">{{ '0% – Exonéré' }}</option>
+                    <option [ngValue]="0.07">{{ '7% – Réduit'  }}</option>
+                    <option [ngValue]="0.13">{{ '13% – Intermédiaire' }}</option>
+<option [ngValue]="0.19">{{ '19% – Normal' }}</option>
                   </select>
                 </div>
                 <small class="error-msg" *ngIf="errors['Taux_TVA']">{{ errors['Taux_TVA'] }}</small>
@@ -171,10 +171,10 @@
 
         <div class="action-area">
           <button class="btn-primary" (click)="submitClassification()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">🔍 Analyser l’achat</ng-container>
-            <ng-container *ngIf="loading()"><span class="spinner"></span> Analyse...</ng-container>
+            <ng-container *ngIf="!loading()">🔍 {{ 'Analyser l’achat' }}</ng-container>
+            <ng-container *ngIf="loading()"><span class="spinner"></span> {{ 'Analyse...' }}</ng-container>
           </button>
-          <span class="note">Résultat en temps réel</span>
+          <span class="note">{{ 'Résultat en temps réel' }}</span>
         </div>
 
         <!-- Résultat -->
@@ -199,9 +199,9 @@
     <ng-container *ngIf="activeTask() === 'regression'">
       <div class="luxury-card">
         <div class="card-header">
-          <div class="header-badge">📈 Prévision financière</div>
-          <h2>Estimation du montant TTC</h2>
-          <p>Anticipez le coût final toutes taxes comprises</p>
+          <div class="header-badge">📈 {{ 'Prévision financière' }}</div>
+          <h2>{{ 'Estimation du montant TTC' }}</h2>
+          <p>{{ 'Anticipez le coût final toutes taxes comprises'}}</p>
         </div>
 
         <div class="fields-grid">
@@ -270,7 +270,7 @@
                 <label>Méthode de paiement</label>
                 <div class="input-wrapper select">
                   <select [(ngModel)]="regrForm.methode" (change)="clearError('rMethode')">
-                    <option *ngFor="let m of methodesPaiement" [value]="m">{{ m }}</option>
+                    <option *ngFor="let m of methodesPaiement" [value]="m.value">{{ m.label }}</option>
                   </select>
                 </div>
                 <small class="error-msg" *ngIf="errors['rMethode']">{{ errors['rMethode'] }}</small>
@@ -293,15 +293,15 @@
 
         <div class="action-area">
           <button class="btn-primary gold" (click)="submitRegression()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">💰 Estimer le TTC</ng-container>
-            <ng-container *ngIf="loading()"><span class="spinner"></span> Calcul...</ng-container>
+            <ng-container *ngIf="!loading()">💰 {{ 'Estimer le TTC' }}</ng-container>
+            <ng-container *ngIf="loading()"><span class="spinner"></span> {{ 'Calcul...' }}</ng-container>
           </button>
         </div>
 
         <div class="result-card" *ngIf="regrResult()">
           <div class="result-icon">💎</div>
           <div class="result-content">
-            <div class="result-title">Montant TTC estimé</div>
+            <div class="result-title">{{ 'Montant TTC estimé'  }}</div>
             <div class="result-value">{{ regrResult()!.predicted_value.toLocaleString('fr-TN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} <span>TND</span></div>
           </div>
         </div>
@@ -312,9 +312,9 @@
     <ng-container *ngIf="activeTask() === 'clustering'">
       <div class="luxury-card">
         <div class="card-header">
-          <div class="header-badge">📊 Segmentation avancée</div>
-          <h2>Typologie de fournisseur</h2>
-          <p>Découvrez le profil stratégique de vos partenaires</p>
+          <div class="header-badge">📊 {{ 'Segmentation avancée'  }}</div>
+          <h2>{{ 'Typologie de fournisseur'  }}</h2>
+          <p>{{ 'Découvrez le profil stratégique de vos partenaires' }}</p>
         </div>
 
         <div class="fields-grid">
@@ -374,8 +374,8 @@
 
         <div class="action-area">
           <button class="btn-primary terra" (click)="submitClustering()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">🏷️ Classifier le fournisseur</ng-container>
-            <ng-container *ngIf="loading()"><span class="spinner"></span> Analyse...</ng-container>
+            <ng-container *ngIf="!loading()">🏷️ {{ 'Classifier le fournisseur' }}</ng-container>
+            <ng-container *ngIf="loading()"><span class="spinner"></span> {{ 'Analyse...' }}</ng-container>
           </button>
         </div>
 

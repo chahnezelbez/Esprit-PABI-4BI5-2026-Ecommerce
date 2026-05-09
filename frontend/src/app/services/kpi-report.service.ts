@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { jsPDF } from 'jspdf';
 import emailjs from 'emailjs-com';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { KpiAlert } from '../models/kpi-alert.model';
 import { KeycloakService } from 'keycloak-angular';
@@ -22,6 +23,8 @@ export interface KpiSnapshot {
 
 @Injectable({ providedIn: 'root' })
 export class KpiReportService {
+  private readonly WORKSPACE_ID = '9d0fbedc-8ecd-4523-9524-62ae4d76f8ff';
+  private readonly DATASET_ID = '60ca01ef-3cca-4aa5-88fa-8fc0c5ed253e';
 
   private readonly EMAILJS_SERVICE_ID = environment.emailjs.serviceId;
   private readonly EMAILJS_TEMPLATE_ID = environment.emailjs.templateId;
@@ -120,7 +123,12 @@ export class KpiReportService {
   // ⭐⭐ MÉTHODE PRINCIPALE - Extraction via embed invisible ⭐⭐
   public async fetchAllKpiValues(): Promise<KpiSnapshot[]> {
     try {
-      const extractedData = await this.extractKpisFromEmbeddedReport('general_manager');
+      // Source unique: backend sécurisé (service principal Power BI).
+      const extractedData = await this.fetchKpisFromBackendApi();
+
+      if (!Object.keys(extractedData).length) {
+        throw new Error('Aucune donnée KPI réelle renvoyée par le backend /powerbi/kpis.');
+      }
       
       return this.allMetrics.map(m => {
         const value = extractedData[m.metric] ?? 0;
@@ -142,9 +150,87 @@ export class KpiReportService {
         };
       });
     } catch (error) {
-      console.error('[KpiReportService] Erreur extraction KPIs, fallback sur valeurs simulées:', error);
-      return this.getSimulatedKpiValues();
+      const detail = this.extractErrorMessage(error);
+      console.error('[KpiReportService] Erreur backend KPI:', error);
+      throw new Error(`Backend KPI échoué: ${detail}`);
     }
+  }
+
+  private async fetchKpisFromBackendApi(): Promise<Record<string, number>> {
+    const endpoint = `${environment.apiUrl}/powerbi/kpis`;
+    const result: any = await firstValueFrom(this.http.get(endpoint));
+    return this.parseBackendKpiResult(result);
+  }
+
+  private parseBackendKpiResult(result: any): Record<string, number> {
+    const output: Record<string, number> = {};
+    const data = result?.kpis ?? result?.data ?? result;
+    if (!data || typeof data !== 'object') return output;
+
+    for (const [rawKey, rawValue] of Object.entries(data)) {
+      const normalizedKey = this.normalizeExecuteQueryKey(rawKey);
+      const parsedValue = this.parseNumericValue(rawValue);
+      if (normalizedKey && parsedValue !== null) {
+        output[normalizedKey] = parsedValue;
+      }
+    }
+    return output;
+  }
+
+  private extractErrorMessage(error: unknown): string {
+    const anyError = error as any;
+    return (
+      anyError?.error?.error?.message ||
+      anyError?.error?.message ||
+      anyError?.message ||
+      'unknown'
+    );
+  }
+
+  private async fetchKpisFromExecuteQueries(): Promise<Record<string, number>> {
+    await this.keycloak.updateToken(30);
+    const token = await this.keycloak.getToken();
+
+    const url = `https://api.powerbi.com/v1.0/myorg/groups/${this.WORKSPACE_ID}/datasets/${this.DATASET_ID}/executeQueries`;
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    });
+
+    const body = {
+      queries: [{ query: this.buildDaxQuery() }],
+      serializerSettings: { includeNulls: true },
+    };
+
+    const result: any = await firstValueFrom(this.http.post(url, body, { headers }));
+    return this.parseExecuteQueryResult(result);
+  }
+
+  private buildDaxQuery(): string {
+    const uniqueMetrics = Array.from(new Set(this.allMetrics.map(m => m.metric)));
+    const measures = uniqueMetrics.map(metric => `"${metric}", ${metric}`).join(',\n  ');
+    return `EVALUATE ROW(\n  ${measures}\n)`;
+  }
+
+  private parseExecuteQueryResult(result: any): Record<string, number> {
+    const output: Record<string, number> = {};
+    const row = result?.results?.[0]?.tables?.[0]?.rows?.[0];
+    if (!row || typeof row !== 'object') return output;
+
+    for (const [rawKey, rawValue] of Object.entries(row)) {
+      const normalizedKey = this.normalizeExecuteQueryKey(rawKey);
+      const parsedValue = this.parseNumericValue(rawValue);
+      if (normalizedKey && parsedValue !== null) {
+        output[normalizedKey] = parsedValue;
+      }
+    }
+    return output;
+  }
+
+  private normalizeExecuteQueryKey(rawKey: string): string {
+    const match = rawKey.match(/(\[[^\]]+\])$/);
+    const base = match ? match[1] : rawKey;
+    return this.normalizeMeasureName(base);
   }
 
   private async extractKpisFromEmbeddedReport(reportKey: string): Promise<Record<string, number>> {
@@ -235,32 +321,113 @@ export class KpiReportService {
   private parseVisualData(exportData: any): Record<string, number> {
     const result: Record<string, number> = {};
     if (!exportData || !exportData.data) return result;
-    
-    for (const row of exportData.data) {
-      const measure = row.Measure || row['Measure'] || row.metric || row['Metric'];
-      const value = row.Value || row['Value'] || row.valeur || row['Valeur'];
-      
-      if (measure && value !== undefined && value !== null) {
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          let cleanMeasure = measure;
-          if (!measure.startsWith('[')) cleanMeasure = `[${measure}]`;
-          result[cleanMeasure] = numValue;
+
+    // Power BI exportData renvoie souvent un CSV string.
+    if (typeof exportData.data === 'string') {
+      const rows = this.parseCsv(exportData.data);
+      this.extractMetricsFromRows(rows, result);
+      return result;
+    }
+
+    if (Array.isArray(exportData.data)) {
+      this.extractMetricsFromRows(exportData.data, result);
+    }
+
+    return result;
+  }
+
+  private extractMetricsFromRows(rows: any[], output: Record<string, number>): void {
+    for (const row of rows) {
+      if (!row || typeof row !== 'object') continue;
+
+      const measureRaw = row.Measure ?? row['Measure'] ?? row.metric ?? row['Metric'] ?? row.KPI ?? row['KPI'];
+      const valueRaw = row.Value ?? row['Value'] ?? row.valeur ?? row['Valeur'];
+
+      if (measureRaw !== undefined && valueRaw !== undefined && valueRaw !== null) {
+        const normalizedMetric = this.normalizeMeasureName(String(measureRaw));
+        const numValue = this.parseNumericValue(valueRaw);
+        if (normalizedMetric && numValue !== null) {
+          output[normalizedMetric] = numValue;
         }
       }
-      
-      for (const [key, val] of Object.entries(row)) {
-        if (key !== 'Measure' && key !== 'metric' && !key.startsWith('__')) {
-          const numValue = parseFloat(val as string);
-          if (!isNaN(numValue)) {
-            let cleanKey = key;
-            if (!key.startsWith('[')) cleanKey = `[${key}]`;
-            result[cleanKey] = numValue;
-          }
+
+      for (const [key, rawVal] of Object.entries(row)) {
+        if (key.startsWith('__')) continue;
+        const numValue = this.parseNumericValue(rawVal);
+        if (numValue === null) continue;
+        const normalizedMetric = this.normalizeMeasureName(key);
+        if (normalizedMetric) {
+          output[normalizedMetric] = numValue;
         }
       }
     }
-    return result;
+  }
+
+  private parseCsv(csvData: string): Record<string, string>[] {
+    const lines = csvData
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean);
+    if (lines.length < 2) return [];
+
+    const delimiter = lines[0].includes(';') ? ';' : ',';
+    const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^"|"$/g, ''));
+
+    return lines.slice(1).map(line => {
+      const cells = line.split(delimiter).map(c => c.trim().replace(/^"|"$/g, ''));
+      const obj: Record<string, string> = {};
+      headers.forEach((h, idx) => {
+        obj[h] = cells[idx] ?? '';
+      });
+      return obj;
+    });
+  }
+
+  private normalizeMeasureName(input: string): string {
+    const clean = input.trim().replace(/^"|"$/g, '');
+    if (!clean) return '';
+    const bracketed = clean.startsWith('[') && clean.endsWith(']') ? clean : `[${clean}]`;
+
+    // Matching tolerant (title/name variations) contre les métriques attendues.
+    const expected = this.allMetrics.find(m => {
+      const metricName = m.metric.replace(/[\[\]]/g, '').toLowerCase();
+      const titleName = m.title.toLowerCase();
+      const current = clean.toLowerCase();
+      return current === metricName || current === titleName || bracketed.toLowerCase() === m.metric.toLowerCase();
+    });
+
+    return expected?.metric ?? bracketed;
+  }
+
+  private parseNumericValue(raw: unknown): number | null {
+    if (raw === null || raw === undefined) return null;
+    if (typeof raw === 'number' && !isNaN(raw)) return raw;
+
+    let text = String(raw).trim();
+    if (!text) return null;
+
+    // Support formats "1 234,56", "1,234.56", "95 %", "1.2K"
+    text = text.replace(/\u00a0/g, ' ').replace(/\s+/g, '');
+    text = text.replace('%', '');
+    text = text.replace(/(TND|DT|USD|EUR)$/i, '');
+
+    const suffix = text.slice(-1).toUpperCase();
+    let multiplier = 1;
+    if (suffix === 'K' || suffix === 'M' || suffix === 'B') {
+      text = text.slice(0, -1);
+      multiplier = suffix === 'K' ? 1_000 : suffix === 'M' ? 1_000_000 : 1_000_000_000;
+    }
+
+    const hasComma = text.includes(',');
+    const hasDot = text.includes('.');
+    if (hasComma && hasDot) {
+      text = text.replace(/,/g, '');
+    } else if (hasComma && !hasDot) {
+      text = text.replace(',', '.');
+    }
+
+    const parsed = Number(text);
+    return isNaN(parsed) ? null : parsed * multiplier;
   }
 
   private getSimulatedKpiValues(): KpiSnapshot[] {

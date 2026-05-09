@@ -26,29 +26,29 @@
   <div class="tab-rail">
     <div class="tab-track">
       <button class="tab-btn" [class.active]="activeTab() === 'regression'" (click)="setTab('regression')">
-        <span class="tab-icon">💰</span> Régression
+        <span class="tab-icon">💰</span> Estimation
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'classification'" (click)="setTab('classification')">
-        <span class="tab-icon">🔍</span> Classification
+        <span class="tab-icon">🔍</span> Statut commande
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'anomaly'" (click)="setTab('anomaly')">
-        <span class="tab-icon">⚠️</span> Anomalie
+        <span class="tab-icon">⚠️</span> Détection
       </button>
       <button class="tab-btn" [class.active]="activeTab() === 'forecast'" (click)="setTab('forecast')">
-        <span class="tab-icon">📅</span> Forecast Prophet
+        <span class="tab-icon">📅</span> Prévision
       </button>
     </div>
   </div>
 
   <div class="cards-container">
 
-    <!-- ========= RÉGRESSION ========= -->
+    <!-- ========= ESTIMATION DU MONTANT ========= -->
     <ng-container *ngIf="activeTab() === 'regression'">
       <div class="luxury-card">
         <div class="card-header">
           <div class="header-badge">📈 Estimation</div>
           <h2>Montant de commande</h2>
-          <p>Prédit le montant TTC d'une commande B2C selon ses caractéristiques produit et livraison.</p>
+          <p>Calcule le montant TTC d'une commande B2C selon ses caractéristiques produit et livraison.</p>
         </div>
 
         <form (ngSubmit)="submit()">
@@ -65,7 +65,7 @@
                   <div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="regForm.feat_max_price" name="maxp"></div>
                 </div>
                 <div class="field">
-                  <label>Nb produits</label>
+                  <label>Nombre de produits</label>
                   <div class="input-wrapper"><input type="number" [(ngModel)]="regForm.feat_nb_products" name="nbp"></div>
                 </div>
                 <div class="field">
@@ -79,11 +79,11 @@
               <div class="block-title"><span class="num">02</span> Livraison & promotion</div>
               <div class="field-row">
                 <div class="field">
-                  <label>% frais livraison</label>
+                  <label>Pourcentage frais livraison</label>
                   <div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="regForm.feat_shipping_pct" name="spc"></div>
                 </div>
                 <div class="field">
-                  <label>Mode paiement (encodé)</label>
+                  <label>Mode paiement (code)</label>
                   <div class="input-wrapper"><input type="number" [(ngModel)]="regForm.feat_payment_encoded" name="pay"></div>
                 </div>
                 <div class="field">
@@ -103,7 +103,7 @@
                   </div>
                 </div>
                 <div class="field">
-                  <label>Promo active</label>
+                  <label>Promotion active</label>
                   <div class="select-wrapper">
                     <select [(ngModel)]="regForm.feat_has_promo" name="promo">
                       <option [value]="1">Oui</option><option [value]="0">Non</option>
@@ -133,24 +133,24 @@
         <div *ngIf="regrResult()" class="result-card">
           <div class="result-icon">💎</div>
           <div class="result-content">
-            <div class="result-title">Montant TTC prédit</div>
+            <div class="result-title">Montant TTC estimé</div>
             <div class="result-value">
               {{ regrResult()!.predicted_value_tnd.toLocaleString('fr-TN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}
               <span>TND</span>
             </div>
-            <div class="result-note">Valeur log-transformée : {{ regrResult()!.predicted_value_log.toFixed(4) }}</div>
+            <div class="result-note">Valeur transformée : {{ regrResult()!.predicted_value_log.toFixed(4) }}</div>
           </div>
         </div>
       </div>
     </ng-container>
 
-    <!-- ========= CLASSIFICATION ========= -->
+    <!-- ========= STATUT DE LA COMMANDE ========= -->
     <ng-container *ngIf="activeTab() === 'classification'">
       <div class="luxury-card">
         <div class="card-header">
           <div class="header-badge">🏷️ Statut</div>
           <h2>Statut de la commande</h2>
-          <p>Classe la commande comme <strong>En cours</strong> ou <strong>Terminée</strong>.</p>
+          <p>Détermine si la commande est <strong>En cours</strong> ou <strong>Terminée</strong>.</p>
         </div>
 
         <form (ngSubmit)="submit()">
@@ -161,24 +161,24 @@
                 <div class="field"><label>Prix moyen (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="classifForm.feat_avg_price"></div></div>
                 <div class="field"><label>Prix max (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="classifForm.feat_max_price"></div></div>
                 <div class="field"><label>Remise</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="classifForm.feat_discount"></div></div>
-                <div class="field"><label>% frais livraison</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="classifForm.feat_shipping_pct"></div></div>
+                <div class="field"><label>Pourcentage frais livraison</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="classifForm.feat_shipping_pct"></div></div>
               </div>
             </div>
             <div class="field-block">
               <div class="block-title"><span class="num">02</span> Contexte</div>
               <div class="field-row">
-                <div class="field"><label>Mode paiement (encodé)</label><div class="input-wrapper"><input type="number" [(ngModel)]="classifForm.feat_payment_encoded"></div></div>
+                <div class="field"><label>Mode paiement (code)</label><div class="input-wrapper"><input type="number" [(ngModel)]="classifForm.feat_payment_encoded"></div></div>
                 <div class="field"><label>Région Tunis</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_is_tunis"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
-                <div class="field"><label>Saison haute</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_is_peak_season"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
+                <div class="field"><label>Période de forte activité</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_is_peak_season"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
                 <div class="field"><label>Livraison gratuite</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_free_shipping"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
                 <div class="field"><label>Note client</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_has_note"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
-                <div class="field"><label>Promo active</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_has_promo"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
+                <div class="field"><label>Promotion active</label><div class="select-wrapper"><select [(ngModel)]="classifForm.feat_has_promo"><option [value]="1">Oui</option><option [value]="0">Non</option></select></div></div>
               </div>
             </div>
           </div>
           <div class="action-area">
             <button type="submit" class="btn-primary" [disabled]="loading()">
-              <span *ngIf="!loading()">🔍 Classifier</span>
+              <span *ngIf="!loading()">🔍 Analyser le statut</span>
               <span *ngIf="loading()"><span class="spinner"></span> Analyse…</span>
             </button>
           </div>
@@ -191,6 +191,7 @@
             <div class="result-value">{{ getClassifMeta(classifResult()!.prediction).label }}</div>
             <div class="result-note">{{ getClassifMeta(classifResult()!.prediction).desc }}</div>
             <div class="confidence" *ngIf="classifResult()!.probabilities">
+              <div class="conf-title">Niveau de confiance</div>
               <div *ngFor="let p of classifResult()!.probabilities; let i = index" class="conf-bar">
                 <span>{{ getClassifMeta(i).label }}</span>
                 <div class="bar-bg"><div class="bar-fill" [style.width]="probPercent(p)"></div></div>
@@ -202,13 +203,13 @@
       </div>
     </ng-container>
 
-    <!-- ========= ANOMALIE ========= -->
+    <!-- ========= DÉTECTION D'ANOMALIES ========= -->
     <ng-container *ngIf="activeTab() === 'anomaly'">
       <div class="luxury-card">
         <div class="card-header">
-          <div class="header-badge">🚨 Isolation Forest</div>
-          <h2>Détection d'anomalie</h2>
-          <p>Seuil de contamination : <strong>5%</strong>. Score très négatif = forte anomalie.</p>
+          <div class="header-badge">🚨 Détection automatique</div>
+          <h2>Détection de commandes inhabituelles</h2>
+          <p>Seuil de détection : <strong>5%</strong>. Score très négatif = commande anormale.</p>
         </div>
 
         <form (ngSubmit)="submit()">
@@ -216,18 +217,18 @@
             <div class="field-block">
               <div class="block-title"><span class="num">01</span> Caractéristiques</div>
               <div class="field-row">
-                <div class="field"><label>Nb produits</label><div class="input-wrapper"><input type="number" [(ngModel)]="anomalyForm.feat_nb_products"></div></div>
+                <div class="field"><label>Nombre de produits</label><div class="input-wrapper"><input type="number" [(ngModel)]="anomalyForm.feat_nb_products"></div></div>
                 <div class="field"><label>Prix moyen (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.feat_avg_price"></div></div>
                 <div class="field"><label>Prix max (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.feat_max_price"></div></div>
                 <div class="field"><label>Remise</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.feat_discount"></div></div>
-                <div class="field"><label>% frais livraison</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.feat_shipping_pct"></div></div>
-                <div class="field"><label>Valeur cible (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.target_value"></div></div>
+                <div class="field"><label>Pourcentage frais livraison</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.feat_shipping_pct"></div></div>
+                <div class="field"><label>Montant commande (TND)</label><div class="input-wrapper"><input type="number" step="0.01" [(ngModel)]="anomalyForm.target_value"></div></div>
               </div>
             </div>
           </div>
           <div class="action-area">
             <button type="submit" class="btn-primary" [disabled]="loading()">
-              <span *ngIf="!loading()">⚠️ Détecter l'anomalie</span>
+              <span *ngIf="!loading()">⚠️ Vérifier la commande</span>
               <span *ngIf="loading()"><span class="spinner"></span> Analyse…</span>
             </button>
           </div>
@@ -236,8 +237,8 @@
         <div *ngIf="anomalyResult()" class="result-card" [class.is-anomaly]="anomalyResult()!.is_anomaly">
           <div class="result-icon">{{ anomalyResult()!.is_anomaly ? '🚨' : '🛡️' }}</div>
           <div class="result-content">
-            <div class="result-title">{{ anomalyResult()!.is_anomaly ? 'Anomalie détectée' : 'Commande normale' }}</div>
-            <div class="result-badge">Prédiction : {{ anomalyResult()!.prediction === -1 ? '-1 (anomalie)' : '1 (normal)' }}</div>
+            <div class="result-title">{{ anomalyResult()!.is_anomaly ? 'Commande suspecte détectée' : 'Commande normale' }}</div>
+            <div class="result-badge">Statut : {{ anomalyResult()!.prediction === -1 ? 'Suspect' : 'Normal' }}</div>
             <div class="anomaly-score">
               <div class="score-header">Score d'anomalie : <strong>{{ anomalyResult()!.anomaly_score.toFixed(4) }}</strong></div>
               <div class="score-bar-bg">
@@ -246,20 +247,20 @@
               </div>
             </div>
             <div class="result-note">
-              {{ anomalyResult()!.is_anomaly ? 'Cette commande sort des patterns habituels. Vérification manuelle recommandée.' : 'Commande conforme aux patterns historiques.' }}
+              {{ anomalyResult()!.is_anomaly ? 'Cette commande sort des habitudes habituelles. Une vérification manuelle est recommandée.' : 'Commande conforme aux habitudes des clients.' }}
             </div>
           </div>
         </div>
       </div>
     </ng-container>
 
-    <!-- ========= FORECAST PROPHET ========= -->
+    <!-- ========= PRÉVISION DES COMMANDES ========= -->
     <ng-container *ngIf="activeTab() === 'forecast'">
       <div class="luxury-card">
         <div class="card-header">
-          <div class="header-badge">📅 Prophet</div>
+          <div class="header-badge">📅 Prévisions</div>
           <h2>Prévision des commandes</h2>
-          <p>Modèle entraîné sur <strong>2023-07-05 → 2026-01-02</strong>.</p>
+          <p>Analyse basée sur l'historique du <strong>05/07/2023 au 02/01/2026</strong>.</p>
         </div>
 
         <form (ngSubmit)="submit()">
@@ -274,8 +275,8 @@
           </div>
           <div class="action-area">
             <button type="submit" class="btn-primary" [disabled]="loading()">
-              <span *ngIf="!loading()">📅 Lancer le forecast</span>
-              <span *ngIf="loading()"><span class="spinner"></span> Prévision…</span>
+              <span *ngIf="!loading()">📅 Lancer la prévision</span>
+              <span *ngIf="loading()"><span class="spinner"></span> Calcul…</span>
             </button>
           </div>
         </form>
@@ -283,7 +284,7 @@
         <div *ngIf="forecastResult()" class="forecast-result">
           <div class="forecast-summary">
             <div class="summary-card"><span>Période</span><strong>{{ forecastResult()!.periods }} jours</strong></div>
-            <div class="summary-card"><span>Pic prévu</span><strong>{{ (forecastResult()!.predictions | maxYhat) | number:'1.0-0' }} cmd/j</strong></div>
+            <div class="summary-card"><span>Pic prévu</span><strong>{{ (forecastResult()!.predictions | maxYhat) | number:'1.0-0' }} commandes/jour</strong></div>
           </div>
           <div class="forecast-list">
             <div class="forecast-header"><span>Date</span><span>Prévision</span><span>Intervalle 80%</span></div>

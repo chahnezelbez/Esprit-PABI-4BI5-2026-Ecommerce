@@ -28,25 +28,25 @@
               [class.tab-btn--active]="activeTab() === 'clustering'"
               (click)="setTab('clustering')">
         <span class="tab-icon">🗂️</span>
-        <span>Clustering</span>
+        <span>Catégories de produits</span>
       </button>
       <button class="tab-btn"
               [class.tab-btn--active]="activeTab() === 'timeseries'"
               (click)="setTab('timeseries')">
         <span class="tab-icon">📈</span>
-        <span>SARIMA</span>
+        <span>Prévision des ventes</span>
       </button>
       <button class="tab-btn"
               [class.tab-btn--active]="activeTab() === 'regression'"
               (click)="setTab('regression')">
         <span class="tab-icon">💰</span>
-        <span>Régression prix</span>
+        <span>Estimation du prix</span>
       </button>
       <button class="tab-btn"
               [class.tab-btn--active]="activeTab() === 'classification'"
               (click)="setTab('classification')">
         <span class="tab-icon">🔍</span>
-        <span>Classification</span>
+        <span>Analyse de performance</span>
       </button>
     </div>
   </div>
@@ -54,18 +54,18 @@
   <!-- CONTENEUR PRINCIPAL -->
   <div class="cards-container">
 
-    <!-- ========= CLUSTERING ========= -->
+    <!-- ========= GROUPEMENT DE PRODUITS ========= -->
     <ng-container *ngIf="activeTab() === 'clustering'">
       <div class="luxury-card">
         <div class="card-crown">
           <div>
-            <h2>Segmentation produit — KMeans</h2>
-            <p>Classe chaque produit artisanal en 3 segments selon ses performances de vente et d'engagement.</p>
+            <h2>Groupement de produits — Analyse automatique</h2>
+            <p>Classe chaque produit artisanal en 3 familles selon ses performances de vente et sa popularité.</p>
           </div>
-          <div class="crown-badge crown-badge--blue">Segmentation</div>
+          <div class="crown-badge crown-badge--blue">Familles de produits</div>
         </div>
 
-        <!-- Légende clusters (mini-cartes) -->
+        <!-- Légende des familles -->
         <div class="segment-cards">
           <div *ngFor="let k of [0,1,2]" class="segment-card" [class.segment-card--blue]="k===0" [class.segment-card--green]="k===1" [class.segment-card--amber]="k===2">
             <div class="segment-icon">{{ getClusterMeta(k).icon }}</div>
@@ -89,25 +89,25 @@
                 <div class="input-shell"><input type="number" step="0.01" [(ngModel)]="clusterForm.discount_depth" /></div>
               </div>
               <div class="field-wrap">
-                <label>Qté vendue</label>
+                <label>Quantité vendue</label>
                 <div class="input-shell"><input type="number" [(ngModel)]="clusterForm.sales_qty" /></div>
               </div>
               <div class="field-wrap">
-                <label>CA total (TND)</label>
+                <label>Chiffre d'affaires (TND)</label>
                 <div class="input-shell"><input type="number" step="0.01" [(ngModel)]="clusterForm.sales_revenue" /><span class="input-suffix">TND</span></div>
               </div>
               <div class="field-wrap">
-                <label>Lignes commande</label>
+                <label>Nombre de commandes</label>
                 <div class="input-shell"><input type="number" [(ngModel)]="clusterForm.order_lines" /></div>
               </div>
               <div class="field-wrap">
-                <label>Vélocité vente</label>
+                <label>Rythme de vente</label>
                 <div class="input-shell"><input type="number" step="0.01" [(ngModel)]="clusterForm.sales_velocity" /></div>
               </div>
             </div>
           </div>
           <div class="fields-section">
-            <div class="section-label"><span class="section-num">02</span> Réputation & avis</div>
+            <div class="section-label"><span class="section-num">02</span> Avis clients</div>
             <div class="fields-row">
               <div class="field-wrap">
                 <label>Note produit (0–5)</label>
@@ -118,7 +118,7 @@
                 <div class="input-shell"><input type="number" [(ngModel)]="clusterForm.reviews_count" /></div>
               </div>
               <div class="field-wrap">
-                <label>Signal avis (0–1)</label>
+                <label>Qualité des avis (0–1)</label>
                 <div class="input-shell"><input type="number" step="0.01" [(ngModel)]="clusterForm.review_signal" /></div>
               </div>
             </div>
@@ -127,18 +127,18 @@
 
         <div class="action-bar">
           <button class="btn-luxe" (click)="submit()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">🗂️ Segmenter le produit</ng-container>
+            <ng-container *ngIf="!loading()">🗂️ Classer le produit</ng-container>
             <ng-container *ngIf="loading()"><span class="spinner"></span> Analyse...</ng-container>
           </button>
-          <p class="action-note">Segmentation KMeans sur 9 features</p>
+          <p class="action-note">Classification automatique basée sur 9 indicateurs</p>
         </div>
 
         <div *ngIf="clusterResult()" class="result-reveal" [ngClass]="getClusterMeta(clusterResult()!.cluster).colorClass">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Segment détecté</div>
+              <div class="result-eyebrow">Famille détectée</div>
               <div class="result-headline">{{ getClusterMeta(clusterResult()!.cluster).icon }} {{ getClusterMeta(clusterResult()!.cluster).label }}</div>
-              <div class="result-chip">Cluster {{ clusterResult()!.cluster }} / {{ clusterResult()!.n_clusters }}</div>
+              <div class="result-chip">Groupe n°{{ clusterResult()!.cluster }}</div>
             </div>
           </div>
           <p class="result-explain">{{ getClusterMeta(clusterResult()!.cluster).desc }}</p>
@@ -152,29 +152,28 @@
       </div>
     </ng-container>
 
-    <!-- ========= SARIMA (TIMESERIES) ========= -->
+    <!-- ========= PRÉVISION DES VENTES ========= -->
     <ng-container *ngIf="activeTab() === 'timeseries'">
       <div class="luxury-card">
         <div class="card-crown">
           <div>
-            <h2>Prévision CA — SARIMA</h2>
-            <p>Modèle SARIMA(0,1,1)(0,1,1,12) – entraîné sur 24 mois (jusqu'au {{ sarimaConfig.lastTrainDate }}).</p>
+            <h2>Prévision du chiffre d'affaires</h2>
+            <p>Modèle de prévision – entraîné sur 24 mois (jusqu'au {{ sarimaConfig.lastTrainDate }}).</p>
           </div>
-          <div class="crown-badge crown-badge--blue">Prévision</div>
+          <div class="crown-badge crown-badge--blue">Prévisions</div>
         </div>
 
         <div class="insight-strip">
-          <div class="insight-pill insight-pill--blue"><span class="pip-dot"></span>Ordre : {{ sarimaConfig.order }}</div>
-          <div class="insight-pill insight-pill--blue"><span class="pip-dot"></span>Saisonnier : {{ sarimaConfig.seasonalOrder }}</div>
-          <div class="insight-pill insight-pill--blue"><span class="pip-dot"></span>Train : {{ sarimaConfig.trainLength }} mois</div>
+          <div class="insight-pill insight-pill--blue"><span class="pip-dot"></span>Période analysée : {{ sarimaConfig.trainLength }} mois</div>
+          <div class="insight-pill insight-pill--blue"><span class="pip-dot"></span>Cycle saisonnier pris en compte</div>
         </div>
 
         <div class="fields-layout">
           <div class="fields-section">
-            <div class="section-label"><span class="section-num">01</span> Paramètres de prévision</div>
+            <div class="section-label"><span class="section-num">01</span> Période à prévoir</div>
             <div class="fields-row">
               <div class="field-wrap">
-                <label>Mois à prévoir (1 – 36)</label>
+                <label>Nombre de mois à prévoir (1 à 36)</label>
                 <div class="input-shell">
                   <input type="range" min="1" max="36" step="1" [(ngModel)]="tsPeriods" style="flex:1">
                   <input type="number" min="1" max="36" [(ngModel)]="tsPeriods" style="width:70px; text-align:center">
@@ -186,29 +185,23 @@
 
         <div class="action-bar">
           <button class="btn-luxe" (click)="submit()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">📈 Lancer SARIMA</ng-container>
-            <ng-container *ngIf="loading()"><span class="spinner"></span> Prévision...</ng-container>
+            <ng-container *ngIf="!loading()">📈 Lancer la prévision</ng-container>
+            <ng-container *ngIf="loading()"><span class="spinner"></span> Calcul...</ng-container>
           </button>
         </div>
 
         <div *ngIf="tsResult()" class="result-reveal result-reveal--blue">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Prévision SARIMA</div>
+              <div class="result-eyebrow">Prévision sur</div>
               <div class="result-headline">{{ tsResult()!.periods }} mois</div>
             </div>
           </div>
           <div class="confidence-bars" style="margin-top:0.5rem">
             <div class="conf-row"><span class="conf-name">Moyenne mensuelle</span><span class="conf-pct">{{ tsAvg(tsResult()!.forecast) | number:'1.0-0' }} TND</span></div>
-            <div class="conf-row"><span class="conf-name">Pic prévu</span><span class="conf-pct">{{ tsMax(tsResult()!.forecast) | number:'1.0-0' }} TND</span></div>
+            <div class="conf-row"><span class="conf-name">Meilleur mois prévu</span><span class="conf-pct">{{ tsMax(tsResult()!.forecast) | number:'1.0-0' }} TND</span></div>
           </div>
-          <div class="bar-chart" style="display:flex; gap:4px; margin-bottom:1rem; padding:1rem 0">
-            <div *ngFor="let v of tsResult()!.forecast; let i = index" style="flex:1; text-align:center">
-            <!--  <div style="background:#1E3A8A; height: {{ (v / tsMax(tsResult()!.forecast)) * 80 }}px; width:100%; border-radius:4px 4px 0 0; transition:height 0.4s"></div> -->
-              <div style="font-size:10px; color:#64748B">M{{ i+1 }}</div>
-            </div>
-          </div>
-          <div class="forecast-list" style="max-height:300px; overflow-y:auto; border-top:1px solid #E2E8F0">
+          <div class="forecast-list" style="max-height:300px; overflow-y:auto; border-top:1px solid #E2E8F0; margin-top:1rem">
             <div *ngFor="let v of tsResult()!.forecast; let i = index" style="display:flex; justify-content:space-between; padding:0.5rem; border-bottom:1px solid #E2E8F0">
               <span>Mois {{ i+1 }}</span><span>{{ v | number:'1.0-0' }} TND</span>
             </div>
@@ -217,18 +210,18 @@
       </div>
     </ng-container>
 
-    <!-- ========= RÉGRESSION PRIX ========= -->
+    <!-- ========= ESTIMATION DU PRIX ========= -->
     <ng-container *ngIf="activeTab() === 'regression'">
       <div class="luxury-card">
         <div class="card-crown">
           <div>
-            <h2>Estimation du prix optimal — RandomForest</h2>
-            <p>Prédit le prix courant d'un produit artisanal selon ses caractéristiques.</p>
+            <h2>Estimation du prix recommandé</h2>
+            <p>Calcule le prix idéal d'un produit artisanal selon ses caractéristiques.</p>
           </div>
-          <div class="crown-badge crown-badge--gold">Prix optimal</div>
+          <div class="crown-badge crown-badge--gold">Prix recommandé</div>
         </div>
 
-        <!-- Feature importances -->
+        <!-- Facteurs d'influence -->
         <div class="insight-strip">
           <div class="insight-pill insight-pill--blue" *ngFor="let f of topFeatures">
             <span class="pip-dot"></span><strong>{{ f.name }}</strong> — {{ f.pct }}% d'influence
@@ -239,32 +232,32 @@
           <div class="fields-section">
             <div class="section-label"><span class="section-num">01</span> Indicateurs commerciaux</div>
             <div class="fields-row">
-              <div class="field-wrap"><label>Nb avis *</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.reviews_count"></div></div>
-              <div class="field-wrap"><label>Qté vendue *</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.sales_qty"></div></div>
-              <div class="field-wrap"><label>CA total (TND)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.sales_revenue"><span class="input-suffix">TND</span></div></div>
-              <div class="field-wrap"><label>Lignes commande</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.order_lines"></div></div>
-              <div class="field-wrap"><label>Prix unit. moyen</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.avg_unit_price"><span class="input-suffix">TND</span></div></div>
+              <div class="field-wrap"><label>Nombre d'avis *</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.reviews_count"></div></div>
+              <div class="field-wrap"><label>Quantité vendue *</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.sales_qty"></div></div>
+              <div class="field-wrap"><label>Chiffre d'affaires (TND)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.sales_revenue"><span class="input-suffix">TND</span></div></div>
+              <div class="field-wrap"><label>Nombre de commandes</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.order_lines"></div></div>
+              <div class="field-wrap"><label>Prix unitaire moyen</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.avg_unit_price"><span class="input-suffix">TND</span></div></div>
               <div class="field-wrap"><label>Jours en vente</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.days_on_sale"></div></div>
             </div>
           </div>
           <div class="fields-section">
             <div class="section-label"><span class="section-num">02</span> Caractéristiques produit</div>
             <div class="fields-row">
-              <div class="field-wrap"><label>Remise (0–1)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.discount_depth"></div></div>
+              <div class="field-wrap"><label>Remise appliquée (0–1)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.discount_depth"></div></div>
               <div class="field-wrap"><label>Note (0–5)</label><div class="input-shell"><input type="number" step="0.1" [(ngModel)]="regForm.rating_value"></div></div>
-              <div class="field-wrap"><label>Vélocité vente</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.sales_velocity"></div></div>
-              <div class="field-wrap"><label>Signal avis (0–1)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.review_signal"></div></div>
-              <div class="field-wrap"><label>Long. nom</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.name_len"></div></div>
-              <div class="field-wrap"><label>Long. description</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.desc_len"></div></div>
+              <div class="field-wrap"><label>Rythme de vente</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.sales_velocity"></div></div>
+              <div class="field-wrap"><label>Qualité des avis (0–1)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="regForm.review_signal"></div></div>
+              <div class="field-wrap"><label>Longueur du nom</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.name_len"></div></div>
+              <div class="field-wrap"><label>Longueur description</label><div class="input-shell"><input type="number" [(ngModel)]="regForm.desc_len"></div></div>
             </div>
           </div>
           <div class="fields-section">
-            <div class="section-label"><span class="section-num">03</span> Contexte catalogue</div>
+            <div class="section-label"><span class="section-num">03</span> Contexte du produit</div>
             <div class="fields-row">
               <div class="field-wrap"><label>Catégorie</label><div class="input-shell"><select [(ngModel)]="regForm.broad_category"><option *ngFor="let c of categories" [value]="c">{{ c }}</option></select></div></div>
-              <div class="field-wrap"><label>Statut stock</label><div class="input-shell"><select [(ngModel)]="regForm.stock_status"><option *ngFor="let s of stockStatuses" [value]="s">{{ s }}</option></select></div></div>
-              <div class="field-wrap"><label>Mode paiement</label><div class="input-shell"><select [(ngModel)]="regForm.main_payment"><option *ngFor="let p of paymentMethods" [value]="p">{{ p }}</option></select></div></div>
-              <div class="field-wrap"><label>Mode livraison</label><div class="input-shell"><select [(ngModel)]="regForm.main_delivery"><option *ngFor="let d of deliveryMethods" [value]="d">{{ d }}</option></select></div></div>
+              <div class="field-wrap"><label>Disponibilité stock</label><div class="input-shell"><select [(ngModel)]="regForm.stock_status"><option *ngFor="let s of stockStatuses" [value]="s">{{ s }}</option></select></div></div>
+              <div class="field-wrap"><label>Mode de paiement</label><div class="input-shell"><select [(ngModel)]="regForm.main_payment"><option *ngFor="let p of paymentMethods" [value]="p">{{ p }}</option></select></div></div>
+              <div class="field-wrap"><label>Mode de livraison</label><div class="input-shell"><select [(ngModel)]="regForm.main_delivery"><option *ngFor="let d of deliveryMethods" [value]="d">{{ d }}</option></select></div></div>
             </div>
           </div>
         </div>
@@ -279,7 +272,7 @@
         <div *ngIf="regrResult()" class="result-reveal result-reveal--blue">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Prix optimal prédit</div>
+              <div class="result-eyebrow">Prix recommandé</div>
               <div class="result-headline">{{ regrResult()!.predicted_value.toLocaleString('fr-TN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} <span class="result-unit">TND</span></div>
             </div>
             <div class="result-emoji">🏷️</div>
@@ -289,54 +282,54 @@
       </div>
     </ng-container>
 
-    <!-- ========= CLASSIFICATION ========= -->
+    <!-- ========= ANALYSE DE PERFORMANCE ========= -->
     <ng-container *ngIf="activeTab() === 'classification'">
       <div class="luxury-card">
         <div class="card-crown">
           <div>
-            <h2>Classification produit</h2>
-            <p>Détermine si un produit est <strong>performant</strong> ou à <strong>faible performance</strong>.</p>
+            <h2>Analyse de performance produit</h2>
+            <p>Détermine si un produit est <strong>performant</strong> ou <strong>à faible performance</strong>.</p>
           </div>
           <div class="crown-badge crown-badge--orange">Performance</div>
         </div>
 
-        <!-- Légende classes -->
+        <!-- Légende des statuts -->
         <div class="segment-cards">
-          <div class="segment-card segment-card--green"><div class="segment-icon">📈</div><div class="segment-info"><div class="seg-name">Classe 1 – Performant</div><div class="seg-desc">Bonnes métriques de vente, avis positifs</div></div></div>
-          <div class="segment-card segment-card--amber"><div class="segment-icon">📉</div><div class="segment-info"><div class="seg-name">Classe 0 – Faible performance</div><div class="seg-desc">Volume faible ou avis insuffisants</div></div></div>
+          <div class="segment-card segment-card--green"><div class="segment-icon">📈</div><div class="segment-info"><div class="seg-name">Produit performant</div><div class="seg-desc">Bonnes ventes, avis positifs</div></div></div>
+          <div class="segment-card segment-card--amber"><div class="segment-icon">📉</div><div class="segment-info"><div class="seg-name">Produit à faible performance</div><div class="seg-desc">Ventes faibles ou avis insuffisants</div></div></div>
         </div>
 
         <div class="fields-layout">
           <div class="fields-section">
-            <div class="section-label"><span class="section-num">01</span> Métriques produit</div>
+            <div class="section-label"><span class="section-num">01</span> Indicateurs produit</div>
             <div class="fields-row">
               <div class="field-wrap"><label>Prix actuel</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.price_current"><span class="input-suffix">TND</span></div></div>
-              <div class="field-wrap"><label>Remise</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.discount_depth"></div></div>
-              <div class="field-wrap"><label>Note</label><div class="input-shell"><input type="number" step="0.1" [(ngModel)]="classifForm.rating_value"></div></div>
-              <div class="field-wrap"><label>Nb avis</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.reviews_count"></div></div>
-              <div class="field-wrap"><label>Long. nom</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.name_len"></div></div>
-              <div class="field-wrap"><label>Long. description</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.desc_len"></div></div>
-              <div class="field-wrap"><label>Qté vendue</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.sales_qty"></div></div>
-              <div class="field-wrap"><label>CA total</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.sales_revenue"><span class="input-suffix">TND</span></div></div>
-              <div class="field-wrap"><label>Lignes commande</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.order_lines"></div></div>
-              <div class="field-wrap"><label>Vélocité vente</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.sales_velocity"></div></div>
-              <div class="field-wrap"><label>Signal avis</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.review_signal"></div></div>
+              <div class="field-wrap"><label>Remise appliquée</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.discount_depth"></div></div>
+              <div class="field-wrap"><label>Note (0–5)</label><div class="input-shell"><input type="number" step="0.1" [(ngModel)]="classifForm.rating_value"></div></div>
+              <div class="field-wrap"><label>Nombre d'avis</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.reviews_count"></div></div>
+              <div class="field-wrap"><label>Longueur du nom</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.name_len"></div></div>
+              <div class="field-wrap"><label>Longueur description</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.desc_len"></div></div>
+              <div class="field-wrap"><label>Quantité vendue</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.sales_qty"></div></div>
+              <div class="field-wrap"><label>Chiffre d'affaires (TND)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.sales_revenue"><span class="input-suffix">TND</span></div></div>
+              <div class="field-wrap"><label>Nombre de commandes</label><div class="input-shell"><input type="number" [(ngModel)]="classifForm.order_lines"></div></div>
+              <div class="field-wrap"><label>Rythme de vente</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.sales_velocity"></div></div>
+              <div class="field-wrap"><label>Qualité des avis (0–1)</label><div class="input-shell"><input type="number" step="0.01" [(ngModel)]="classifForm.review_signal"></div></div>
             </div>
           </div>
           <div class="fields-section">
             <div class="section-label"><span class="section-num">02</span> Contexte</div>
             <div class="fields-row">
               <div class="field-wrap"><label>Catégorie</label><div class="input-shell"><select [(ngModel)]="classifForm.broad_category"><option *ngFor="let c of categories" [value]="c">{{ c }}</option></select></div></div>
-              <div class="field-wrap"><label>Statut stock</label><div class="input-shell"><select [(ngModel)]="classifForm.stock_status"><option *ngFor="let s of stockStatuses" [value]="s">{{ s }}</option></select></div></div>
-              <div class="field-wrap"><label>Mode paiement</label><div class="input-shell"><select [(ngModel)]="classifForm.main_payment"><option *ngFor="let p of paymentMethods" [value]="p">{{ p }}</option></select></div></div>
-              <div class="field-wrap"><label>Mode livraison</label><div class="input-shell"><select [(ngModel)]="classifForm.main_delivery"><option *ngFor="let d of deliveryMethods" [value]="d">{{ d }}</option></select></div></div>
+              <div class="field-wrap"><label>Disponibilité stock</label><div class="input-shell"><select [(ngModel)]="classifForm.stock_status"><option *ngFor="let s of stockStatuses" [value]="s">{{ s }}</option></select></div></div>
+              <div class="field-wrap"><label>Mode de paiement</label><div class="input-shell"><select [(ngModel)]="classifForm.main_payment"><option *ngFor="let p of paymentMethods" [value]="p">{{ p }}</option></select></div></div>
+              <div class="field-wrap"><label>Mode de livraison</label><div class="input-shell"><select [(ngModel)]="classifForm.main_delivery"><option *ngFor="let d of deliveryMethods" [value]="d">{{ d }}</option></select></div></div>
             </div>
           </div>
         </div>
 
         <div class="action-bar">
           <button class="btn-luxe btn-luxe--orange" (click)="submit()" [disabled]="loading()">
-            <ng-container *ngIf="!loading()">🔍 Classifier le produit</ng-container>
+            <ng-container *ngIf="!loading()">🔍 Analyser le produit</ng-container>
             <ng-container *ngIf="loading()"><span class="spinner"></span> Analyse...</ng-container>
           </button>
         </div>
@@ -346,7 +339,7 @@
             <div class="result-main">
               <div class="result-eyebrow">Statut détecté</div>
               <div class="result-headline">{{ getClassifMeta(classifResult()!.prediction).icon }} {{ getClassifMeta(classifResult()!.prediction).label }}</div>
-              <div class="result-chip">Classe {{ classifResult()!.prediction }}</div>
+              <div class="result-chip">Catégorie {{ classifResult()!.prediction }}</div>
             </div>
           </div>
           <p class="result-explain">{{ getClassifMeta(classifResult()!.prediction).desc }}</p>

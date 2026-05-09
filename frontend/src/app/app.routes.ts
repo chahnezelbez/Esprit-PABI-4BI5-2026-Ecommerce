@@ -7,7 +7,13 @@ export const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
-
+  {
+  path: 'events',
+  loadComponent: () =>
+    import('./components/events-popup/events-popup.component')
+      .then(m => m.EventsPopupComponent),
+       canActivate: [roleGuard(['general_manager', 'financier', 'achat', 'vente_b2c', 'vente_b2b', 'marketing'])],
+},
   // ── Routes existantes ──────────────────────────
   {
     path: 'purchase',
@@ -101,4 +107,12 @@ export const routes: Routes = [
       import('./components/report-builder/report-builder.component').then(m => m.ReportBuilderComponent),
     canActivate: [roleGuard(['general_manager', 'financier'])], // Accessible à la DG et Finance
   },
+  {
+  path: 'calendar',
+  loadComponent: () =>
+    import('./components/calendar/calendar.component')
+      .then(m => m.CalendarComponent),
+       canActivate: [roleGuard(['general_manager', 'financier', 'achat', 'vente_b2c', 'vente_b2b', 'marketing'])],
+},
+
 ];

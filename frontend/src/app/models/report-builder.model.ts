@@ -14,6 +14,8 @@ export interface ReportSection {
   id: string;
   title: string;
   type: 'header' | 'kpi_table' | 'chart' | 'text';
+  businessGroup?: string;
+  content?: string;
   kpis: KpiItem[];
   settings: {
     showTrend?: boolean;
@@ -28,14 +30,14 @@ export interface CustomReport {
   description: string;
   sections: ReportSection[];
   createdBy: string;
-  createdAt: Date;
+  createdAt: Date | string;
   recipients: string[];  // emails
   schedule: {
     frequency: 'once' | 'weekly' | 'monthly';
     dayOfWeek?: number;   // 1=Lundi
     time: string;         // "08:00"
   };
-  lastSent?: Date;
+  lastSent?: Date | string;
   isActive: boolean;
 }
 

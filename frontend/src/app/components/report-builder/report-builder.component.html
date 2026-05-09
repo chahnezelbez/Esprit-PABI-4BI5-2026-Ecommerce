@@ -4,36 +4,37 @@
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="toolbar-left">
-      <button class="btn-icon" (click)="showSavedReports = !showSavedReports" title="Rapports sauvegardés">📋</button>
-      <button class="btn-icon" (click)="cancelEdit()" title="Nouveau rapport">➕</button>
+      <button class="btn-icon" (click)="showSavedReports = !showSavedReports" [title]="'Rapports sauvegardés' ">📋</button>
+      <button class="btn-icon" (click)="cancelEdit()" [title]="'Nouveau rapport' ">➕</button>
     </div>
     
     <div class="toolbar-center">
-      <input [(ngModel)]="reportName" placeholder="Nom du rapport" class="name-input">
-      <input [(ngModel)]="reportDescription" placeholder="Description" class="desc-input">
+      <input [(ngModel)]="reportName" [placeholder]="'Nom du rapport' " class="name-input">
+      <input [(ngModel)]="reportDescription" [placeholder]="'Description' " class="desc-input">
     </div>
     
     <div class="toolbar-right">
-      <button (click)="previewReport()" class="btn-secondary" [disabled]="isLoading">👁️ Aperçu</button>
-      <button (click)="saveReport()" class="btn-primary" [disabled]="isLoading">💾 Sauvegarder</button>
-      <button (click)="sendReportNow()" class="btn-success" [disabled]="isLoading">📧 Envoyer</button>
+      <button (click)="previewReport()" class="btn-secondary" [disabled]="isLoading">👁️ {{ 'Aperçu' }}</button>
+      <button (click)="exportPdfNow()" class="btn-secondary" [disabled]="isLoading">📄 {{ 'Export PDF'  }}</button>
+      <button (click)="saveReport()" class="btn-primary" [disabled]="isLoading">💾 {{ 'Sauvegarder' }}</button>
+      <button (click)="sendReportNow()" class="btn-success" [disabled]="isLoading">📧 {{ 'Envoyer' }}</button>
     </div>
   </div>
 
   <!-- Saved reports panel -->
   <div class="saved-panel" *ngIf="showSavedReports">
-    <h3>📋 Mes rapports sauvegardés</h3>
+    <h3>📋 {{ 'Mes rapports sauvegardés'  }}</h3>
     <div class="reports-list">
       <div *ngFor="let r of savedReports" class="saved-item">
         <div class="saved-info" (click)="loadReport(r)">
           <strong>{{ r.name }}</strong>
           <small>{{ r.description }}</small>
-          <small>Créé le {{ r.createdAt | date:'dd/MM/yyyy' }}</small>
+          <small>{{ 'Créé le'  }} {{ r.createdAt | date:'dd/MM/yyyy' }}</small>
         </div>
         <button (click)="deleteReport(r.id)" class="btn-remove">🗑️</button>
       </div>
       <div *ngIf="savedReports.length === 0" class="empty-state">
-        Aucun rapport sauvegardé
+        {{ 'Aucun rapport sauvegardé' }}
       </div>
     </div>
   </div>
@@ -42,7 +43,7 @@
     
     <!-- KPIs disponibles -->
     <div class="palette">
-      <h3>📊 KPIs disponibles</h3>
+      <h3>📊 {{ 'KPIs disponibles' }}</h3>
       <div class="kpi-list">
         <div *ngFor="let k of availableKpis" class="kpi-card">
           <div class="kpi-info">
@@ -52,7 +53,7 @@
           <button (click)="addKpiToSection(0, k)" class="add-btn">+</button>
         </div>
         <div *ngIf="availableKpis.length === 0" class="empty-zone">
-          ✅ Tous les KPIs sont utilisés
+          ✅ {{ 'Tous les KPIs sont utilisés' }}
         </div>
       </div>
     </div>
@@ -61,17 +62,31 @@
     <div class="canvas">
       <div *ngFor="let section of reportSections; let i=index" class="section">
         <div class="section-header">
-          <input [(ngModel)]="section.title" class="section-title" placeholder="Titre de la section">
-          <select [(ngModel)]="section.type" (change)="changeSectionType(section, section.type)">
-            <option value="header">📌 En-tête</option>
-            <option value="kpi_table">📊 Tableau KPIs</option>
-            <option value="chart">📈 Graphique</option>
-            <option value="text">📝 Texte</option>
+          <input [(ngModel)]="section.title" (ngModelChange)="onSectionMetaChanged()" class="section-title" [placeholder]="'Titre de la section' ">
+          <select [(ngModel)]="section.businessGroup" (change)="onSectionMetaChanged()">
+            <option *ngFor="let group of businessGroups" [value]="group">{{ group }}</option>
           </select>
+          <select [(ngModel)]="section.type" (change)="changeSectionType(section, section.type)">
+            <option value="header">📌 {{ 'En-tête' }}</option>
+            <option value="kpi_table">📊 {{ 'Tableau KPIs' }}</option>
+            <option value="chart">📈 {{ 'Graphique' }}</option>
+            <option value="text">📝 {{ 'Texte'  }}</option>
+          </select>
+          <button (click)="moveSection(i, 'up')" class="btn-icon" [title]="'Monter' ">⬆️</button>
+          <button (click)="moveSection(i, 'down')" class="btn-icon" [title]="'Descendre' ">⬇️</button>
           <button (click)="removeSection(i)" class="btn-remove">🗑️</button>
         </div>
         
         <div class="section-content">
+          <textarea
+            *ngIf="section.type === 'header' || section.type === 'text'"
+            [(ngModel)]="section.content"
+            (ngModelChange)="onSectionMetaChanged()"
+            rows="3"
+            class="desc-input"
+            [placeholder]="'Texte métier de la section (analyse, résumé, recommandations)' "
+          ></textarea>
+
           <div *ngFor="let k of section.kpis; let j=index" class="kpi-item">
             <div class="kpi-info">
               <span class="kpi-title">{{ k.title }}</span>
@@ -80,17 +95,17 @@
             <button (click)="removeKpiFromSection(i, j)" class="remove-btn">✕</button>
           </div>
           <div *ngIf="section.kpis.length === 0" class="empty-dropzone">
-            📌 Cliquez sur + pour ajouter des KPIs
+            📌 {{ 'Cliquez sur + pour ajouter des KPIs' }}
           </div>
         </div>
         
         <div class="section-settings" *ngIf="section.type === 'kpi_table'">
-          <label><input type="checkbox" [(ngModel)]="section.settings.showTrend"> 📈 Afficher tendance</label>
-          <label><input type="checkbox" [(ngModel)]="section.settings.showThreshold"> ⚠️ Afficher seuils</label>
+          <label><input type="checkbox" [(ngModel)]="section.settings.showTrend"> 📈 {{ 'Afficher tendance' }}</label>
+          <label><input type="checkbox" [(ngModel)]="section.settings.showThreshold"> ⚠️ {{ 'Afficher seuils' }}</label>
         </div>
       </div>
       
-      <button (click)="addSection()" class="add-section">+ Ajouter une section</button>
+      <button (click)="addSection()" class="add-section">+ {{ 'Ajouter une section' }}</button>
     </div>
   </div>
 
@@ -99,29 +114,59 @@
     <div class="schedule-header">
       <label class="schedule-toggle">
         <input type="checkbox" [(ngModel)]="scheduleEnabled">
-        ⏰ Programmer l'envoi automatique
+        ⏰ {{ 'Programmer l\'envoi automatique' }}
       </label>
       
-      <div class="recipients-input" *ngIf="scheduleEnabled">
-        <input [(ngModel)]="selectedRecipients" placeholder="Destinataires (emails séparés par des virgules)" class="recipients-field">
-      </div>
+    </div>
+
+    <div class="recipients-input">
+      <input [(ngModel)]="selectedRecipients" [placeholder]="'Destinataires (emails séparés par des virgules)' " class="recipients-field">
+      <small>{{ 'Valides détectés'  }}: {{ getRecipientsList().length }}</small>
     </div>
     
     <div class="schedule-options" *ngIf="scheduleEnabled">
       <select [(ngModel)]="scheduleFrequency">
-        <option value="weekly">📅 Chaque semaine (Lundi)</option>
-        <option value="monthly">📆 Chaque mois (1er jour)</option>
+        <option value="weekly">📅 {{ 'Chaque semaine (Lundi)' }}</option>
+        <option value="monthly">📆 {{ 'Chaque mois (1er jour)' }}</option>
       </select>
       <input type="time" [(ngModel)]="scheduleTime">
       <span class="schedule-info">
-        ⏰ Prochain envoi: {{ scheduleFrequency === 'weekly' ? 'Lundi' : '1er du mois' }} à {{ scheduleTime }}
+        ⏰ {{ 'Prochain envoi' }}: {{ scheduleFrequency === 'weekly' ? ('Lundi' ) : ('1er du mois' ) }} {{ 'à' }} {{ scheduleTime }}
       </span>
+    </div>
+
+    <label class="schedule-toggle">
+      <input type="checkbox" [(ngModel)]="includeDateInFileName">
+      {{ 'Inclure la date dans le nom du PDF exporté' }}
+    </label>
+  </div>
+
+  <div class="schedule-panel">
+    <h3>👁️ {{ 'Prévisualisation temps réel'  }}</h3>
+    <p *ngIf="previewGeneratedAt">{{ 'Dernière mise à jour'  }}: {{ previewGeneratedAt | date:'dd/MM/yyyy HH:mm:ss' }}</p>
+    <p *ngIf="previewError">{{ previewError }}</p>
+    <div *ngIf="!previewError && previewSnapshots.length === 0">
+      {{ 'Ajoutez des KPIs puis cliquez sur "Aperçu" pour voir le rendu live.' }}
+    </div>
+    <div *ngFor="let section of reportSections" class="section">
+      <div class="section-header">
+        <strong>{{ section.title || ('Section sans titre' ) }}</strong>
+        <small>{{ section.businessGroup || ('Non classé' ) }}</small>
+      </div>
+      <div class="section-content">
+        <p *ngIf="section.content">{{ section.content }}</p>
+        <div *ngFor="let snap of getSectionPreview(section)" class="kpi-item">
+          <span>{{ snap.title }}</span>
+          <strong>{{ snap.value | number:'1.0-2' }} {{ snap.unit }}</strong>
+          <span>{{ snap.status }}</span>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Loading overlay -->
   <div class="loading-overlay" *ngIf="isLoading">
     <div class="spinner"></div>
-    <p>Chargement des données Power BI...</p>
+    <p>{{ 'Chargement des données Power BI...' }}</p>
   </div>
 </div>

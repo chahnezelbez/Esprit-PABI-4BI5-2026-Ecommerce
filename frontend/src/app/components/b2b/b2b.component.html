@@ -4,8 +4,8 @@
   <div class="hero-full">
     <div class="hero-content">
       <div class="hero-title">
-        <h1>Décideur B2B</h1>
-        <p class="hero-script">Classification, clustering, anomalie et prévision pour les clients B2B</p>
+        <h1>{{ 'Décideur B2B'  }}</h1>
+        <p class="hero-script">{{ 'Analyse clients, catégorisation, détection et prévision pour les clients B2B'  }}</p>
       </div>
       <div class="hero-right">
         <div class="hero-ornament">
@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <!-- ONGLETS (task selector) -->
+  <!-- ONGLETS -->
   <div class="tab-rail">
     <div class="tab-rail-inner">
       <button class="tab-btn" 
@@ -40,34 +40,35 @@
     <div class="luxury-card">
       <div class="card-crown">
         <div>
-          <h2>Paramètres B2B</h2>
-          <p>Entrez les features (séparées par des virgules) pour l’analyse.</p>
+          <h2>{{ 'Analyse client B2B'  }}</h2>
+          <p>{{ 'Saisissez les données clients (séparées par des virgules) pour l’analyse.' }}</p>
         </div>
-        <div class="crown-badge crown-badge--blue">Configuration</div>
+        <div class="crown-badge crown-badge--blue">{{ 'Configuration'  }}</div>
       </div>
 
       <div class="fields-layout">
         <div class="fields-section">
-          <div class="section-label"><span class="section-num">01</span> Features</div>
+          <div class="section-label"><span class="section-num">01</span> {{ 'Données client' }}</div>
           <div class="fields-row">
             <div class="field-wrap">
-              <label>Features (séparées par des virgules)</label>
+              <label>{{ 'Valeurs client (séparées par des virgules)'  }}</label>
               <div class="input-shell">
                 <input type="text" [(ngModel)]="featuresValue" placeholder="Ex: 0.15,1,0.4,0.07,0.9,12,220,18,0.02,0.58">
               </div>
               <div class="feature-count" *ngIf="features.length > 0">
-                <span class="chip">{{ features.length }} features chargées</span>
+                <span class="chip">{{ features.length }} {{ 'valeurs chargées' }}</span>
+                <span class="chip" *ngIf="requiredFeatureCount !== null">{{ 'Requis'  }}: {{ requiredFeatureCount }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Additional inputs for Forecast task -->
+        <!-- Paramètres pour la prévision -->
         <div class="fields-section" *ngIf="selectedTask() === 'forecast'">
-          <div class="section-label"><span class="section-num">02</span> Prévision</div>
+          <div class="section-label"><span class="section-num">02</span> {{ 'Prévision'  }}</div>
           <div class="fields-row">
             <div class="field-wrap">
-              <label>Nombre de périodes à prévoir (1-36)</label>
+              <label>{{ 'Nombre de mois à prévoir (1-36)'  }}</label>
               <div class="input-shell">
                 <input type="number" min="1" max="36" [(ngModel)]="forecastPeriods">
               </div>
@@ -75,21 +76,21 @@
           </div>
         </div>
 
-        <!-- Info spécifique -->
+        <!-- Message d'information -->
         <div class="info-message" *ngIf="selectedTask() === 'classification-risks'">
-          <span class="info-icon">⚠️</span> La classification des risques utilise 27 features (array plus long)
+          <span class="info-icon">⚠️</span> {{ 'L\'analyse de risque client utilise 27 indicateurs. Un jeu de données compatible est chargé automatiquement.' }}
         </div>
         <div class="info-message" *ngIf="selectedTask() === 'anomaly'">
-          <span class="info-icon">🔍</span> Détection d'anomalies dans les données B2B
+          <span class="info-icon">🔍</span> {{ 'Détection de comportements anormaux dans les données clients B2B' }}
         </div>
       </div>
 
       <div class="action-bar">
         <button class="btn-luxe" (click)="submit()" [disabled]="loading()">
-          <ng-container *ngIf="!loading()">🚀 Lancer l’analyse</ng-container>
-          <ng-container *ngIf="loading()"><span class="spinner"></span> Analyse en cours…</ng-container>
+          <ng-container *ngIf="!loading()">🚀 {{ 'Lancer l’analyse'  }}</ng-container>
+          <ng-container *ngIf="loading()"><span class="spinner"></span> {{ 'Analyse en cours…'  }}</ng-container>
         </button>
-        <p class="action-note">Analyse instantanée</p>
+        <p class="action-note">{{ 'Résultat instantané' }}</p>
       </div>
 
       <!-- RÉSULTATS -->
@@ -97,21 +98,21 @@
            [class.result-reveal--blue]="selectedTask() !== 'anomaly' || !anomalyResult()?.is_anomaly"
            [class.result-reveal--amber]="selectedTask() === 'anomaly' && anomalyResult()?.is_anomaly">
         
-        <!-- Classification / Classification Risques -->
+        <!-- Catégorisation client / Catégorisation des risques -->
         <ng-container *ngIf="selectedTask() === 'classification' || selectedTask() === 'classification-risks'">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Classe prédite</div>
+              <div class="result-eyebrow">Catégorie attribuée</div>
               <div class="result-headline">{{ classifResult()!.prediction }}</div>
-              <div class="result-chip">Classification</div>
+              <div class="result-chip">Catégorisation</div>
             </div>
             <div class="result-emoji">🎯</div>
           </div>
           <ng-container *ngIf="classifResult()!.probabilities as probabilities">
             <div class="confidence-bars" *ngIf="probabilities.length">
-              <div class="conf-title">Probabilités par classe</div>
+              <div class="conf-title">Niveau de confiance par catégorie</div>
               <div *ngFor="let p of probabilities; let i = index" class="conf-row">
-                <span class="conf-name">Classe {{ i }}</span>
+                <span class="conf-name">Catégorie {{ i }}</span>
                 <div class="conf-track"><div class="conf-fill" [style.width]="p * 100 + '%'"></div></div>
                 <span class="conf-pct">{{ p * 100 | number:'1.0-0' }}%</span>
               </div>
@@ -119,57 +120,57 @@
           </ng-container>
         </ng-container>
 
-        <!-- Clustering -->
+        <!-- Groupement de clients -->
         <ng-container *ngIf="selectedTask() === 'clustering'">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Cluster assigné</div>
+              <div class="result-eyebrow">Groupe attribué</div>
               <div class="result-headline">{{ clusterResult()!.cluster }}</div>
-              <div class="result-chip">Clustering</div>
+              <div class="result-chip">Groupement</div>
             </div>
             <div class="result-emoji">🗂️</div>
           </div>
-          <p class="result-explain">Client assigné au cluster {{ clusterResult()!.cluster }}</p>
+          <p class="result-explain">Client attribué au groupe {{ clusterResult()!.cluster }}</p>
         </ng-container>
 
-        <!-- Forecast -->
+        <!-- Prévision -->
         <ng-container *ngIf="selectedTask() === 'forecast'">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Valeur prédite</div>
+              <div class="result-eyebrow">Valeur prévue</div>
               <div class="result-headline">{{ forecastResult()!.predicted_value | number:'1.2-2' }}</div>
-              <div class="result-chip">Prévision {{ forecastPeriods }} périodes</div>
+              <div class="result-chip">Prévision sur {{ forecastPeriods }} mois</div>
             </div>
             <div class="result-emoji">📈</div>
           </div>
         </ng-container>
 
-        <!-- Regression -->
+        <!-- Estimation -->
         <ng-container *ngIf="selectedTask() === 'regression'">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Valeur prédite</div>
+              <div class="result-eyebrow">Valeur estimée</div>
               <div class="result-headline">{{ regressResult()!.predicted_value | number:'1.2-2' }}</div>
-              <div class="result-chip">Régression</div>
+              <div class="result-chip">Estimation</div>
             </div>
             <div class="result-emoji">📊</div>
           </div>
         </ng-container>
 
-        <!-- Anomaly -->
+        <!-- Détection d'anomalies -->
         <ng-container *ngIf="selectedTask() === 'anomaly'">
           <div class="result-top">
             <div class="result-main">
-              <div class="result-eyebrow">Statut</div>
+              <div class="result-eyebrow">Statut client</div>
               <div class="result-headline">
-                {{ anomalyResult()!.is_anomaly ? '⚠️ Anomalie détectée' : '✅ Normal' }}
+                {{ anomalyResult()!.is_anomaly ? '⚠️ Comportement anormal détecté' : '✅ Comportement normal' }}
               </div>
               <div class="result-chip">Score : {{ anomalyResult()!.anomaly_score | number:'1.3-3' }}</div>
             </div>
             <div class="result-emoji">{{ anomalyResult()!.is_anomaly ? '🚨' : '🛡️' }}</div>
           </div>
           <p class="result-explain">
-            Prédiction : {{ anomalyResult()!.prediction === -1 ? 'Anomalie' : 'Normal' }}
+            Statut : {{ anomalyResult()!.prediction === -1 ? 'Anomalie détectée' : 'Client normal' }}
           </p>
         </ng-container>
       </div>

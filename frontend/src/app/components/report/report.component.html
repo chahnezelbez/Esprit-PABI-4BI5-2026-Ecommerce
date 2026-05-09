@@ -1,15 +1,22 @@
+
 <div class="report-wrapper">
 
+  <!-- Error -->
   <div *ngIf="errorMessage" class="error-box">
     {{ errorMessage }}
   </div>
 
+  <!-- Optional loading state -->
+  <div *ngIf="!reportUrl && !errorMessage" class="report-loading">
+    Loading report...
+  </div>
+
+  <!-- Report iframe -->
   <iframe
     *ngIf="reportUrl"
     [src]="reportUrl"
     class="report-frame"
-    frameborder="0"
-    allowfullscreen="true">
+    allowfullscreen>
   </iframe>
 
 </div>

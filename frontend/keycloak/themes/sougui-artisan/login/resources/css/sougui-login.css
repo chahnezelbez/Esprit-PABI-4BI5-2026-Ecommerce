@@ -1,0 +1,428 @@
+/* ═══════════════════════════════════════════════════════════
+   SOUGUI.TN — Keycloak Login Theme
+   Version: 4.4 — Artisanat Tunisien Authentique
+   Charte: Bleu profond + Zellige + Touches artisanales
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── VARIABLES ──────────────────────────────────────────── */
+:root {
+  --sg-blue:        #1e3a8a;
+  --sg-blue-dark:   #0f2b5c;
+  --sg-blue-mid:    #0b156e;
+  --sg-blue-light:  #e0e8f5;
+  
+  --sg-gold:        #c9963a;
+  --sg-gold-dark:   #9e7428;
+  --sg-gold-light:  #ffffff;
+  
+  --sg-terracotta:  #c26a3c;
+  --sg-olive:       #8a9a5b;
+  --sg-sand:        #ffff;
+  
+  --sg-white:       #ffffff;
+  --sg-text:        #1b1568;
+  --sg-text-muted:  #0b156e;
+  --sg-border:      #d4c8b5;
+}
+
+/* ── FOND AVEC IMAGE (céramique artisanale) ─────────────── */
+html, body.login-pf {
+  background: linear-gradient(145deg, rgba(30,58,138,0.88) 0%, rgba(15,43,92,0.92) 100%),
+              url('https://vacances.b-cdn.net/media/images/souk_de_Sousse.png') center/cover no-repeat fixed !important;
+  font-family: 'Cairo', 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body.login-pf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+/* ── MOTIF ZELLIGE ARTISANAL (overlay supplémentaire) ───── */
+body.login-pf::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 40%, rgba(201,150,58,0.1) 2%, transparent 2.5%),
+    radial-gradient(circle at 75% 60%, rgba(201,150,58,0.08) 1.5%, transparent 2%),
+    radial-gradient(circle at 50% 80%, rgba(201,150,58,0.06) 1.8%, transparent 2.2%);
+  background-size: 70px 70px, 85px 85px, 100px 100px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── CONTENEUR CENTRÉ ───────────────────────────────────── */
+.pf-v5-c-login,
+.login-pf-page {
+  width: 100%;
+  max-width: 460px !important;
+  margin: 0 auto !important;
+  position: relative;
+  z-index: 1;
+}
+
+.pf-v5-c-login__container {
+  width: 100%;
+  margin: auto;
+}
+
+/* Cache l'en-tête Keycloak par défaut */
+#kc-header, #kc-header-wrapper {
+  display: none !important;
+}
+
+/* ── CARTE PRINCIPALE (STYLE MOULED) ────────────────────── */
+.pf-v5-c-login__main,
+.card-pf {
+background: #ffffff !important;
+  backdrop-filter: blur(8px);
+  border-radius: 32px !important;
+  border: 1px solid rgba(201,150,58,0.4) !important;
+  box-shadow: 
+    0 32px 64px rgba(0,0,0,0.25),
+    0 8px 24px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.8) !important;
+  overflow: hidden;
+  position: relative;
+  margin: 20px;
+}
+
+/* Bordure décorative style cadre artisanal */
+.pf-v5-c-login__main::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 24px;
+  border: 1px solid rgba(201,150,58,0.2);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── EN-TÊTE AVEC LOGO SOUGUI ───────────────────────────── */
+.pf-v5-c-login__main-header {
+  background: linear-gradient(135deg, var(--sg-blue) 0%, var(--sg-blue-dark) 100%);
+  padding: 32px 24px 24px !important;
+  text-align: center;
+  position: relative;
+  border-bottom: 4px solid var(--sg-gold);
+}
+
+/* Logo principal */
+.sg-logo-main {
+  max-width: 160px;
+  height: auto;
+  margin: 0 auto 8px;
+  display: block;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+}
+
+/* Welcome to Sougui */
+.sg-welcome-title {
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  margin: 16px 0 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.sg-welcome-subtitle {
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+/* ── LOGO SOUGUI DANS L'OVERLAY DU HEADER ───────────────── */
+.pf-v5-c-login__main-header::after {
+  content: "";
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--sg-white) url('https://sougui.tn/wp-content/uploads/2021/08/Logo-Sougui-arabe.png.webp') center/contain no-repeat;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 10;
+  border: 2px solid var(--sg-gold);
+}
+
+/* ── BADGE ARTISANAL ────────────────────────────────────── */
+.sg-badge-craft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sg-gold-light);
+  border: 1px solid var(--sg-gold);
+  border-radius: 40px;
+  padding: 6px 14px;
+  margin-bottom: 24px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sg-gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ── CORPS DU FORMULAIRE ────────────────────────────────── */
+.pf-v5-c-login__main-body {
+  padding: 32px 32px 24px !important;
+  background: #ffffff !important;
+}
+
+/* ── CHAMPS EMAIL & PASSWORD - COULEUR BLEU COMME HEADER ── */
+.sg-field-craft {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.sg-field-craft input,
+.sg-field-craft .pf-c-form-control {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px 0 44px !important;
+  border-radius: 16px !important;
+
+  /* ✅ CHANGE ICI */
+  border: 1.5px solid var(--sg-border) !important;
+  background: #ffffff !important;
+
+  font-family: inherit;
+  transition: all 0.25s ease;
+  color: var(--sg-text) !important;
+  font-weight: 500;
+}
+
+.sg-field-craft .sg-field-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--sg-blue) !important;
+  z-index: 2;
+}
+
+.sg-field-craft input:focus {
+  border-color: var(--sg-blue) !important;
+  background: linear-gradient(135deg, rgba(30,58,138,0.1) 0%, rgba(15,43,92,0.05) 100%) !important;
+  box-shadow: 0 0 0 3px rgba(30,58,138,0.2) !important;
+}
+
+/* Placeholder en bleu clair */
+.sg-field-craft input::placeholder {
+  color: var(--sg-blue-mid);
+  opacity: 0.6;
+}
+
+/* ── BOUTON - COULEUR BLEU COMME HEADER ─────────────────── */
+.sg-btn-craft {
+  width: 100%;
+  min-height: 52px;
+  border-radius: 40px !important;
+  background: linear-gradient(135deg, var(--sg-blue) 0%, var(--sg-blue-dark) 100%) !important;
+  border: none !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  letter-spacing: 1px !important;
+  color: var(--sg-white) !important;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 12px rgba(30,58,138,0.3);
+}
+
+.sg-btn-craft:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(30,58,138,0.4);
+  background: linear-gradient(135deg, var(--sg-blue-dark) 0%, var(--sg-blue) 100%) !important;
+}
+
+/* ── OPTIONS (REMEMBER ME + FORGOT PASSWORD) ────────────── */
+#kc-form-options {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  margin-top: 8px;
+}
+
+/* Checkbox "Remember me" en bleu */
+#kc-form-options .checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+#kc-form-options .checkbox label {
+  color: var(--sg-blue) !important;
+  font-size: 13px;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+#kc-form-options .checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--sg-blue);
+  cursor: pointer;
+}
+
+/* Lien "Forgot Password?" en bleu */
+#kc-form-options a {
+  color: var(--sg-blue) !important;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+#kc-form-options a:hover {
+  color: var(--sg-blue-mid) !important;
+  text-decoration: underline;
+}
+
+/* ── SECTION REGISTER ("New user? Register") ────────────── */
+#kc-registration,
+.pf-v5-c-login__main-footer-band {
+  text-align: center;
+  margin-top: 8px;
+}
+
+#kc-registration a,
+.pf-v5-c-login__main-footer-band a {
+  color: var(--sg-blue) !important;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  transition: color 0.2s;
+}
+
+#kc-registration a:hover,
+.pf-v5-c-login__main-footer-band a:hover {
+  color: var(--sg-blue-mid) !important;
+  text-decoration: underline;
+}
+
+#kc-registration span {
+  color: var(--sg-text-muted);
+  font-size: 13px;
+}
+
+/* ── SÉPARATEUR ARTISANAL ───────────────────────────────── */
+.sg-craft-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+}
+
+.sg-craft-divider-line {
+  flex: 1;
+  height: 1px;
+  background: repeating-linear-gradient(90deg, var(--sg-gold), var(--sg-gold) 4px, transparent 4px, transparent 12px);
+}
+
+.sg-craft-divider span {
+  font-size: 11px;
+  color: var(--sg-gold-dark);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* ── FOOTER ARTISANAL ───────────────────────────────────── */
+.pf-v5-c-login__main-footer {
+  background: #ffffff !important;
+  border-top: 1px solid var(--sg-border);
+}
+
+.sg-footer-craft {
+  font-size: 11px;
+  color: var(--sg-text-muted);
+}
+
+.sg-footer-craft .sg-heart {
+  color: var(--sg-terracotta);
+  display: inline-block;
+  animation: heartbeat 1.5s ease infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ── MESSAGES D'ERREUR ──────────────────────────────────── */
+.alert, .pf-v5-c-alert {
+  border-radius: 12px !important;
+  margin-bottom: 20px !important;
+  font-size: 13px !important;
+}
+
+.alert-danger {
+  background: #ffffff !important;
+  border-left: 4px solid #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .pf-v5-c-login__main-body { padding: 24px 20px !important; }
+  .sg-logo-main { max-width: 130px; }
+  .sg-welcome-title { font-size: 20px; }
+}
+/* ─────────────────────────────
+   LARGE SQUARE SOCIAL BUTTON
+   ICON ONLY (NO TEXT)
+   ───────────────────────────── */
+
+#kc-social-providers ul {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+}
+
+/* gros carré propre */
+#kc-social-providers ul li a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 72px;
+  height: 72px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+
+  border-radius: 14px;
+
+  font-size: 0;   /* 🔥 supprime le texte */
+  color: transparent;
+
+  text-decoration: none;
+  transition: all 0.25s ease;
+
+  padding: 0;
+  position: relative;
+}
+
+/* hover premium */
+#kc-social-providers ul li a:hover {
+  border-color: var(--sg-blue);
+  background: #f9fafb;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0,0,0,0.12);
+}

@@ -18,6 +18,10 @@ export class AlertBellComponent {
     this.open = !this.open;
   }
 
+  close(): void {
+    this.open = false;
+  }
+
   // Fermer en cliquant en dehors
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
@@ -25,6 +29,11 @@ export class AlertBellComponent {
     if (!target.closest('app-alert-bell')) {
       this.open = false;
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.open = false;
   }
 
   trackById(_: number, alert: any): string {

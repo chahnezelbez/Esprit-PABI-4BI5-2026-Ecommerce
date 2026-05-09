@@ -3,5 +3,6 @@ FROM quay.io/keycloak/keycloak:26.1.4
 ENV KEYCLOAK_ADMIN=admin2
 ENV KEYCLOAK_ADMIN_PASSWORD=admin2
 
+EXPOSE 8080
 
-CMD ["start-dev"]
+CMD ["start-dev", "--http-port=8080"]

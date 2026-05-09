@@ -1,21 +1,15 @@
-FROM quay.io/keycloak/keycloak:26.6.1 as builder
-ENV KC_HEALTH_ENABLED=true
-ENV KC_METRICS_ENABLED=true
+FROM quay.io/keycloak/keycloak:26.1.4
+
 ENV KC_DB=postgres
-
-RUN /opt/keycloak/bin/kc.sh build
-
-FROM quay.io/keycloak/keycloak:latest
-COPY --from=builder /opt/keycloak/lib/quarkus/ /opt/keycloak/lib/quarkus/
-
-ENV KC_HEALTH_ENABLED=true
-ENV KC_METRICS_ENABLED=true
-ENV KC_DB=postgres
+ENV KC_DB_URL_HOST=dpg-d7vi0e5ckfvc73ekpmv0-a
+ENV KC_DB_URL_DATABASE=keycloak_jgg5
+ENV KC_DB_USERNAME=keycloak_user
+ENV KC_DB_PASSWORD=PRC1YeWufeRa9bTWNajFdGu6aQ2S2wFF
+ENV KC_HOSTNAME=sougui-keycloakv1.onrender.com
 ENV KC_HTTP_ENABLED=true
-ENV KC_HOSTNAME_STRICT=false
-ENV KC_PROXY=edge
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
 
 EXPOSE 8180
 
-# ⭐ AJOUTER CETTE LIGNE - C'est ce qui lance Keycloak
-CMD ["start", "--optimized", "--http-port=8180", "--hostname-strict=false", "--proxy=edge"]
+CMD ["start-dev", "--http-port=8180"]

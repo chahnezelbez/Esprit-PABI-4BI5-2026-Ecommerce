@@ -1,3 +1,2 @@
 FROM quay.io/keycloak/keycloak:26.1.4
-
-CMD ["start-dev", "--db=postgres", "--db-url=jdbc:postgresql://dpg-d7vi0e5ckfvc73ekpmv0-a:5432/keycloak_jgg5?ssl=true", "--db-username=keycloak_user", "--db-password=PRC1YeWufeRa9bTWNajFdGu6aQ2S2wFF", "--hostname=https://sougui-keycloak.onrender.com", "--http-enabled=true", "--hostname-strict=false"]
+EXPOSE 8180

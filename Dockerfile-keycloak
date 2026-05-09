@@ -1,7 +1,8 @@
-FROM quay.io/keycloak/keycloak:26.6.1
+FROM quay.io/keycloak/keycloak:26.1.4
+
 ENV KEYCLOAK_ADMIN=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=admin
-ENV KC_HTTP_ENABLED=true
-ENV KC_HOSTNAME_STRICT=false
 
-CMD ["start", "--http-port=8080"]
+
+
+CMD ["start-dev"]

@@ -2,10 +2,5 @@ FROM quay.io/keycloak/keycloak:26.1.4
 
 ENV KEYCLOAK_ADMIN=admin
 ENV KEYCLOAK_ADMIN_PASSWORD=admin
-ENV KC_HOSTNAME_STRICT=false
-ENV KC_HTTP_ENABLED=true
-ENV KC_PROXY_HEADERS=xforwarded
 
-EXPOSE 8080
-
-CMD ["start-dev", "--http-port=8080"]
+CMD ["start-dev"]

@@ -1,6 +1,22 @@
-FROM quay.io/keycloak/keycloak:latest
+# syntax=docker/dockerfile:1
+FROM quay.io/keycloak/keycloak:latest as builder
 
-ENV KC_METRICS_ENABLED=true
+# Active les fonctionnalités (health, metrics)
 ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
 
+# Configure la base de données PostgreSQL
+ENV KC_DB=postgres
+
+# Construit l'image optimisée
+RUN /opt/keycloak/bin/kc.sh build
+
+FROM quay.io/keycloak/keycloak:latest
+COPY --from=builder /opt/keycloak/lib/quarkus/ /opt/keycloak/lib/quarkus/
+WORKDIR /opt/keycloak
+
+# Utilisateur non-root pour la sécurité
+USER 1000
+
+EXPOSE 8180
 ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]

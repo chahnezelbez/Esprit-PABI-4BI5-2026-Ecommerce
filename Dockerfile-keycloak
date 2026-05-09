@@ -1,7 +1,8 @@
 FROM quay.io/keycloak/keycloak:26.1.4
 
 ENV KC_DB=postgres
-ENV KC_DB_URL=jdbc:postgresql://dpg-d7vi0e5ckfvc73ekpmv0-a:5432/keycloak_jgg5?ssl=true
+ENV KC_DB_URL_HOST=dpg-d7vi0e5ckfvc73ekpmv0-a
+ENV KC_DB_URL_DATABASE=keycloak_jgg5
 ENV KC_DB_USERNAME=keycloak_user
 ENV KC_DB_PASSWORD=PRC1YeWufeRa9bTWNajFdGu6aQ2S2wFF
 ENV KC_HOSTNAME=sougui-keycloakv1.onrender.com
@@ -10,4 +11,5 @@ ENV KC_HOSTNAME_STRICT=false
 ENV KC_HEALTH_ENABLED=true
 ENV KC_METRICS_ENABLED=true
 
-CMD ["start-dev"]
+
+CMD ["start-dev", "--db-url-host=dpg-d7vi0e5ckfvc73ekpmv0-a", "--db-url-database=keycloak_jgg5", "--db-username=keycloak_user", "--db-password=PRC1YeWufeRa9bTWNajFdGu6aQ2S2wFF"]

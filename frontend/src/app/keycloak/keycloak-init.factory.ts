@@ -4,7 +4,7 @@ export function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
     keycloak.init({
    config: {
-  url: 'http://localhost:8180',
+  url: 'https://sougui-keycloakv1.onrender.com',
   realm: 'sougui-realm',
   clientId: 'angular-app'
 },

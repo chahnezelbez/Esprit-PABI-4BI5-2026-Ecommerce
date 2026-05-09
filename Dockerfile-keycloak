@@ -6,6 +6,6 @@ ENV KC_HOSTNAME_STRICT=false
 ENV KC_HTTP_ENABLED=true
 ENV KC_PROXY_HEADERS=xforwarded
 
-EXPOSE 8180
+EXPOSE 8080
 
-CMD ["start-dev", "--http-port=8180"]
+CMD ["start-dev", "--http-port=8080"]

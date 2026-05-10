@@ -17,6 +17,8 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "baseHref": "/",
+            "deployUrl": "/",
             "outputPath": "dist/sougui-front",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -38,7 +40,6 @@
           },
           "configurations": {
             "production": {
-              
               "optimization": true,
               "outputHashing": "all"
             },

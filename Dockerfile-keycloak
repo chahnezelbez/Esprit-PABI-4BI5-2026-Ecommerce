@@ -1,5 +1,6 @@
 FROM quay.io/keycloak/keycloak:26.1.4
-
+# Copier le thème personnalisé depuis le dossier frontend/keycloak/themes
+COPY frontend/keycloak/themes/sougui-artisan /opt/keycloak/themes/sougui-artisan
 ENV KEYCLOAK_ADMIN=admin2
 ENV KEYCLOAK_ADMIN_PASSWORD=admin2
 
